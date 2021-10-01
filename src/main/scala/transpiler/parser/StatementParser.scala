@@ -1,9 +1,8 @@
 package transpiler.parser
 
 import fastparse.noApi._
-import WsApi._
+import transpiler.parser.WsApi._
 import transpiler.parser.ast.AST._
-import transpiler.parser
 
 object StatementParser extends Statements(0)
 
@@ -14,7 +13,7 @@ class Statements(indent: Int) {
   val ENDMARKER: P0 = P(End)
   val indents = P(NEWLINE ~~ " ".repX(indent))
   val spaces = P((LexicalParser.nonewlinewscomment.? ~~ "\n").repX(1))
-  val space_indents = P( spaces.repX ~~ " ".repX(indent) )
+  val space_indents = P(spaces.repX ~~ " ".repX(indent))
 
   val assignParser: P[Assign] = P(LexicalParser.kw("let") ~ ("mutable").!.? ~ ExpressionParser.nameParser ~ (":" ~ ExpressionParser.typeRefParser).? ~/ P(LexicalParser.kw("=")) ~ blockParser).map(x => Assign(x._2, x._3, x._1.isEmpty, x._4))
 
@@ -28,15 +27,17 @@ class Statements(indent: Int) {
 
   val ifStatementParser: P[If] = {
     def ifParser: P[(Expression, Statement)] = P(LexicalParser.kw("if") ~/ ExpressionParser.expressionParser ~ P(LexicalParser.kw("then")) ~ blockParser).map(x => (x._1, x._2))
+
     def elseParser: P[Statement] = P(elifP ~ elseParser.?).map(x => If(x._1, x._2, x._3)) | P(elseP)
 
     def elifP: P[(Expression, Statement)] = P(LexicalParser.kw("elif") ~/ ExpressionParser.expressionParser ~ LexicalParser.kw("then") ~ blockParser).map(x => (x._1, x._2))
+
     def elseP: P[Statement] = P(LexicalParser.kw("else") ~/ blockParser).map(x => x)
 
     P(ifParser ~ elseParser.?).map(x => If(x._1, x._2, x._3))
   }
 
-  val importParser: P[Import] = P(LexicalParser.kw("import") ~/ ExpressionParser.nameParser.rep(sep=".")).map(Import)
+  val importParser: P[Import] = P(LexicalParser.kw("import") ~/ ExpressionParser.nameParser.rep(sep = ".")).map(Import)
 
   val fieldParser: P[Field] = P(ExpressionParser.nameParser ~ ":" ~ ExpressionParser.typeRefParser).map(x => Field(x._1, x._2, None))
 
@@ -46,13 +47,13 @@ class Statements(indent: Int) {
 
   val moduleParser: P[Module] = P(nameSpaceParser ~ importParser.rep ~ modelParser.rep).map(x => Module(ModuleHeader(x._1, x._2), x._3))
 
-  val nameSpaceParser: P[NameSpace] = P(LexicalParser.kw("package") ~/ ExpressionParser.nameParser.rep(sep=".")).map(NameSpace)
+  val nameSpaceParser: P[NameSpace] = P(LexicalParser.kw("package") ~/ ExpressionParser.nameParser.rep(sep = ".")).map(NameSpace)
 
   val reassignParser: P[Reassign] = P(ExpressionParser.nameParser ~ "<-" ~/ blockParser).map(x => Reassign(x._1, x._2))
 
   val statementParser: P[Statement] = P(!commentParser ~ (modelParser | ifStatementParser | methodParser | assignParser | reassignParser | exprAsStmt))
 
-  val indentedBlock: P[Seq[Statement]] ={
+  val indentedBlock: P[Seq[Statement]] = {
     val deeper: P[Int] = {
       val commentLine = P("\n" ~~ LexicalParser.nonewlinewscomment.?.map(_ => 0)).map((_, Some("")))
       val endLine = P("\n" ~~ (" " | "\t").repX(indent + 1).!.map(_.length) ~~ LexicalParser.comment.!.?)

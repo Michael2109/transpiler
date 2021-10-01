@@ -5,8 +5,7 @@ import org.scalatest.junit.JUnitRunner
 import org.scalatest.{FunSpec, Matchers}
 
 @RunWith(classOf[JUnitRunner])
-class MatchParserTest extends FunSpec with Matchers
-{
+class MatchParserTest extends FunSpec with Matchers {
   /* TODO
       let codeMatch = unlines [ "match obj with"
                             , "    ClassName1 -> i"

@@ -1,10 +1,9 @@
 package transpiler.parser
 
 import fastparse.noApi._
-import WsApi._
-import transpiler.parser.ast.AST._
+import transpiler.parser.WsApi._
 import transpiler.parser.ast.AST
-import transpiler.parser.ExpressionParser.newClassInstanceParser
+import transpiler.parser.ast.AST._
 
 object ExpressionParser {
 
@@ -13,12 +12,16 @@ object ExpressionParser {
   def annotationParser: P[Annotation] = P("@" ~ nameParser).map(Annotation)
 
   val expressionParser: P[Expression] = {
-    def parensParser: P[Expression] = P( "(" ~ (expressionParser) ~ ")" )
-    def termParser: P[Expression] = P(Chain(allExpressionsParser, multiply | divide ))
+    def parensParser: P[Expression] = P("(" ~ (expressionParser) ~ ")")
+
+    def termParser: P[Expression] = P(Chain(allExpressionsParser, multiply | divide))
+
     def arith_exprParser: P[Expression] = P(Chain(termParser, add | subtract))
+
     def rExprParser: P[Expression] = P(Chain(arith_exprParser, LtE | Lt | GtE | Gt))
 
     def allExpressionsParser = methodCallParser | newClassInstanceParser | ternaryParser | numberParser | identifierParser | stringLiteral | parensParser
+
     P(Chain(rExprParser, and | or)).rep(sep = ".").map(expressions => {
       expressions.length match {
         case 0 => BlockExpr(Seq())
@@ -50,7 +53,7 @@ object ExpressionParser {
 
   def typeRefParser: P[Type] = refParser.map(Type)
 
-  def refParser: P[Ref] = P(nameParser.rep(sep = ".", min=2)).map(x => RefQual(QualName(NameSpace(x.dropRight(1)), x.last))) | P(nameParser).map(RefLocal)
+  def refParser: P[Ref] = P(nameParser.rep(sep = ".", min = 2)).map(x => RefQual(QualName(NameSpace(x.dropRight(1)), x.last))) | P(nameParser).map(RefLocal)
 
   private def Chain(p: P[Expression], op: P[AST.Operator]) = P(p ~ (op ~ p).rep).map {
     case (lhs, chunks) =>
@@ -65,6 +68,7 @@ object ExpressionParser {
   }
 
   def op[T](s: P0, rhs: T) = s.!.map(_ => rhs)
+
   val Lt = op("<", AST.Less)
   val Gt = op(">", AST.Greater.asInstanceOf[Operator])
   val Eq = op("==", AST.Equal.asInstanceOf[Operator])

@@ -5,8 +5,7 @@ import org.scalatest.junit.JUnitRunner
 import org.scalatest.{FunSpec, Matchers}
 
 @RunWith(classOf[JUnitRunner])
-class ArrayOpParserTest extends FunSpec with Matchers
-{
+class ArrayOpParserTest extends FunSpec with Matchers {
 
   // TODO "x ++ y"
 

@@ -1,7 +1,5 @@
 package transpiler.parser
 
-import transpiler.parser.ast.AST
-
 object WsApi extends fastparse.WhitespaceApi.Wrapper(LexicalParser.wscomment)
 
 object LexicalParser {

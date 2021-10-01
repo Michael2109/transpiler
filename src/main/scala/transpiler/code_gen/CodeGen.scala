@@ -4,10 +4,9 @@ import java.io.PrintWriter
 
 import transpiler.parser.ast.IRNew._
 import transpiler.parser.ast.IRUtils
-import org.codehaus.janino.Java.LocalVariable
 
-import scala.tools.asm.{Opcodes, _}
-import scala.tools.asm.util.CheckClassAdapter;
+import scala.tools.asm.util.CheckClassAdapter
+import scala.tools.asm.{Opcodes, _};
 
 object CodeGen {
 
@@ -29,7 +28,7 @@ object CodeGen {
     }
   }
 
-  def genCode(cw: ClassWriter, statementIR: StatementIR): Unit ={
+  def genCode(cw: ClassWriter, statementIR: StatementIR): Unit = {
     statementIR match {
       case visit: Visit => cw.visit(visit.version, visit.access, visit.name, visit.signature, visit.superName, visit.interfaces)
       case visitField: VisitField => cw.visitField(visitField.id, visitField.name, visitField.`type`, visitField.signature, visitField.value)
@@ -37,27 +36,27 @@ object CodeGen {
   }
 
   def genCode(cw: ClassWriter, method: MethodIR): Unit = {
-      val mv = cw.visitMethod(method.modifiers.foldLeft(0)(_|_), method.name, String.format("(%s)V", method.fields.map(_._2).mkString), null, null)
-      method.body.foreach(x => genCode(mv, x, method))
-      mv.visitMaxs(0, 0)
-      mv.visitEnd()
+    val mv = cw.visitMethod(method.modifiers.foldLeft(0)(_ | _), method.name, String.format("(%s)V", method.fields.map(_._2).mkString), null, null)
+    method.body.foreach(x => genCode(mv, x, method))
+    mv.visitMaxs(0, 0)
+    mv.visitEnd()
   }
 
   def genCode(mv: MethodVisitor, expression: ExpressionIR, method: MethodIR): Unit = {
     expression match {
-     /* case aBinary: ABinaryIR => {
-        genCode(mv, aBinary.expression1)
-        genCode(mv, aBinary.expression2)
-        val instruction = IRUtils.getArithmeticOperator(aBinary.op, aBinary.expression1, aBinary.expression2)
-        mv.visitInsn(instruction)
-      }
-      case boolConst: BoolConstIR => mv.visitIntInsn(Opcodes.BIPUSH,
-        if (boolConst.value.equals(true)) {
-          1
-        } else {
-          0
-        })
-      case blockStmt: BlockExprIR => blockStmt.expressions.foreach(x => genCode(mv, x))*/
+      /* case aBinary: ABinaryIR => {
+         genCode(mv, aBinary.expression1)
+         genCode(mv, aBinary.expression2)
+         val instruction = IRUtils.getArithmeticOperator(aBinary.op, aBinary.expression1, aBinary.expression2)
+         mv.visitInsn(instruction)
+       }
+       case boolConst: BoolConstIR => mv.visitIntInsn(Opcodes.BIPUSH,
+         if (boolConst.value.equals(true)) {
+           1
+         } else {
+           0
+         })
+       case blockStmt: BlockExprIR => blockStmt.expressions.foreach(x => genCode(mv, x))*/
       case identifier: IdentifierIR => mv.visitIntInsn(IRUtils.getLoadOperator(identifier.`type`), identifier.id)
       case doubleConst: DoubleConstIR => mv.visitLdcInsn(doubleConst.value.toDouble)
       case floatConst: FloatConstIR => mv.visitLdcInsn(floatConst.value.toFloat)

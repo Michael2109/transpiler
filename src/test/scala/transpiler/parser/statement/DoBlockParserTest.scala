@@ -1,21 +1,18 @@
 package transpiler.parser.statement
 
-import transpiler.parser.ast.AST._
-import transpiler.parser.StatementParser
-import transpiler.utils.TestUtil
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{FunSpec, Matchers}
+import transpiler.parser.StatementParser
+import transpiler.parser.ast.AST._
+import transpiler.utils.TestUtil
 
 import scala.collection.mutable.ArrayBuffer
 
 @RunWith(classOf[JUnitRunner])
-class DoBlockParserTest extends FunSpec with Matchers
-{
-  describe("Do block parser")
-  {
-    it("Should parse do block")
-    {
+class DoBlockParserTest extends FunSpec with Matchers {
+  describe("Do block parser") {
+    it("Should parse do block") {
       val code =
         """do
           |  x

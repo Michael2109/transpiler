@@ -1,9 +1,7 @@
 package transpiler.parser.ast
 
 import transpiler.parser.ast.AST._
-import transpiler.parser.ast.AST2IR.convertToIR
 import transpiler.parser.ast.IRNew._
-import transpiler.jar_loader.JarUtility
 import transpiler.symbol_table.{SymbolTable, ValueEntry}
 
 import scala.tools.asm.Opcodes

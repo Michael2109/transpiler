@@ -1,6 +1,6 @@
 package transpiler.symbol_table
 
-import transpiler.parser.ast.IRNew.{ObjectType, TypeIR}
+import transpiler.parser.ast.IRNew.TypeIR
 
 import scala.collection.mutable.ListBuffer
 
@@ -12,7 +12,7 @@ abstract class SymbolTable {
   }
 
   def get(name: String): SymbolTable = {
-      entries.filter(_.exists(name)).head
+    entries.filter(_.exists(name)).head
   }
 
   def getId(): Int
@@ -23,12 +23,14 @@ case class ClassEntry(name: String) extends SymbolTable {
 
   override def getId(): Int = -1
 }
-case class MethodEntry(name: String, `type`: String) extends SymbolTable{
+
+case class MethodEntry(name: String, `type`: String) extends SymbolTable {
   override def exists(name: String): Boolean = this.name.equals(name)
 
   override def getId(): Int = -1
 }
-case class ValueEntry(name: String, id: Int, `type`: TypeIR) extends SymbolTable{
+
+case class ValueEntry(name: String, id: Int, `type`: TypeIR) extends SymbolTable {
   override def exists(name: String): Boolean = this.name.equals(name)
 
   override def getId(): Int = id

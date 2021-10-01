@@ -5,8 +5,7 @@ import org.scalatest.junit.JUnitRunner
 import org.scalatest.{FunSpec, Matchers}
 
 @RunWith(classOf[JUnitRunner])
-class ImportParserTest extends FunSpec with Matchers
-{
+class ImportParserTest extends FunSpec with Matchers {
   // TODO "import x"
 
   // TODO "import x.y"

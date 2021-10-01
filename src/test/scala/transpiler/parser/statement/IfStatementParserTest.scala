@@ -1,60 +1,53 @@
 package transpiler.parser.statement
 
-import transpiler.parser.ast.AST._
-import transpiler.parser.StatementParser
-import transpiler.utils.TestUtil
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{FunSpec, Matchers}
+import transpiler.parser.StatementParser
+import transpiler.parser.ast.AST._
+import transpiler.utils.TestUtil
 
 import scala.collection.mutable.ArrayBuffer
 
 @RunWith(classOf[JUnitRunner])
-class IfStatementParserTest extends FunSpec with Matchers
-{
-    describe("If statement parser")
-  {
-    it("Should parse if statementParser - inline")
-    {
+class IfStatementParserTest extends FunSpec with Matchers {
+  describe("If statement parser") {
+    it("Should parse if statementParser - inline") {
       val code =
         """if true then x
         """.stripMargin.replace("\r", "")
-      TestUtil.parse(code, StatementParser.statementParser) shouldBe If(Identifier(Name("true")),Inline(Identifier(Name("x"))),None)
+      TestUtil.parse(code, StatementParser.statementParser) shouldBe If(Identifier(Name("true")), Inline(Identifier(Name("x"))), None)
     }
 
-    it("Should parse if statementParser - do block")
-    {
+    it("Should parse if statementParser - do block") {
       val code =
         """if true then do
           |  x
         """.stripMargin.replace("\r", "")
-      TestUtil.parse(code, StatementParser.statementParser) shouldBe If(Identifier(Name("true")),DoBlock(ArrayBuffer(ExprAsStmt(Identifier(Name("x"))))),None)
+      TestUtil.parse(code, StatementParser.statementParser) shouldBe If(Identifier(Name("true")), DoBlock(ArrayBuffer(ExprAsStmt(Identifier(Name("x"))))), None)
     }
 
-    it("Should parse if statementParser - if else")
-    {
+    it("Should parse if statementParser - if else") {
       val code =
         """if true then do
           |  x
           |else do
           |  2
         """.stripMargin.replace("\r", "")
-      TestUtil.parse(code, StatementParser.statementParser) shouldBe If(Identifier(Name("true")),DoBlock(ArrayBuffer(ExprAsStmt(Identifier(Name("x"))))),Some(DoBlock(ArrayBuffer(ExprAsStmt(IntConst(2))))))
+      TestUtil.parse(code, StatementParser.statementParser) shouldBe If(Identifier(Name("true")), DoBlock(ArrayBuffer(ExprAsStmt(Identifier(Name("x"))))), Some(DoBlock(ArrayBuffer(ExprAsStmt(IntConst(2))))))
     }
 
-    it("Should parse if statementParser - elif")
-    {
+    it("Should parse if statementParser - elif") {
       val code =
         """if true then do
           |  x
           |elif true then do
           |  y
         """.stripMargin.replace("\r", "")
-      TestUtil.parse(code, StatementParser.statementParser) shouldBe If(Identifier(Name("true")),DoBlock(ArrayBuffer(ExprAsStmt(Identifier(Name("x"))))),Some(If(Identifier(Name("true")),DoBlock(ArrayBuffer(ExprAsStmt(Identifier(Name("y"))))),None)))
+      TestUtil.parse(code, StatementParser.statementParser) shouldBe If(Identifier(Name("true")), DoBlock(ArrayBuffer(ExprAsStmt(Identifier(Name("x"))))), Some(If(Identifier(Name("true")), DoBlock(ArrayBuffer(ExprAsStmt(Identifier(Name("y"))))), None)))
     }
 
-    it("Should parse if statementParser - multiple elif")
-    {
+    it("Should parse if statementParser - multiple elif") {
       val code =
         """if true then do
           |  x
@@ -63,11 +56,10 @@ class IfStatementParserTest extends FunSpec with Matchers
           |elif true then do
           |  z
         """.stripMargin.replace("\r", "")
-      TestUtil.parse(code, StatementParser.statementParser) shouldBe If(Identifier(Name("true")),DoBlock(ArrayBuffer(ExprAsStmt(Identifier(Name("x"))))),Some(If(Identifier(Name("true")),DoBlock(ArrayBuffer(ExprAsStmt(Identifier(Name("y"))))),Some(If(Identifier(Name("true")),DoBlock(ArrayBuffer(ExprAsStmt(Identifier(Name("z"))))),None)))))
+      TestUtil.parse(code, StatementParser.statementParser) shouldBe If(Identifier(Name("true")), DoBlock(ArrayBuffer(ExprAsStmt(Identifier(Name("x"))))), Some(If(Identifier(Name("true")), DoBlock(ArrayBuffer(ExprAsStmt(Identifier(Name("y"))))), Some(If(Identifier(Name("true")), DoBlock(ArrayBuffer(ExprAsStmt(Identifier(Name("z"))))), None)))))
     }
 
-    it("Should parse if statementParser - elif else")
-    {
+    it("Should parse if statementParser - elif else") {
       val code =
         """if true then do
           |  x
@@ -76,7 +68,7 @@ class IfStatementParserTest extends FunSpec with Matchers
           |else do
           |  z
         """.stripMargin.replace("\r", "")
-      TestUtil.parse(code, StatementParser.statementParser) shouldBe If(Identifier(Name("true")),DoBlock(ArrayBuffer(ExprAsStmt(Identifier(Name("x"))))),Some(If(Identifier(Name("true")),DoBlock(ArrayBuffer(ExprAsStmt(Identifier(Name("y"))))),Some(DoBlock(ArrayBuffer(ExprAsStmt(Identifier(Name("z")))))))))
+      TestUtil.parse(code, StatementParser.statementParser) shouldBe If(Identifier(Name("true")), DoBlock(ArrayBuffer(ExprAsStmt(Identifier(Name("x"))))), Some(If(Identifier(Name("true")), DoBlock(ArrayBuffer(ExprAsStmt(Identifier(Name("y"))))), Some(DoBlock(ArrayBuffer(ExprAsStmt(Identifier(Name("z")))))))))
     }
   }
 

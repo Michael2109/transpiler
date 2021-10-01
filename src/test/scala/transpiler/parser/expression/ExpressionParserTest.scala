@@ -1,20 +1,19 @@
 package transpiler.parser.expression
 
-import transpiler.parser.ast.AST._
-import transpiler.parser.ExpressionParser
-import transpiler.utils.TestUtil
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{FunSpec, Matchers}
+import transpiler.parser.ExpressionParser
+import transpiler.parser.ast.AST._
+import transpiler.utils.TestUtil
 
 import scala.collection.mutable.ArrayBuffer
 
 @RunWith(classOf[JUnitRunner])
-class ExpressionParserTest extends FunSpec with Matchers
-{
+class ExpressionParserTest extends FunSpec with Matchers {
   describe("Nested expression call parser test") {
     it("Should parse nested expression calls") {
-      TestUtil.parse("x.toString()", ExpressionParser.expressionParser) shouldBe NestedExpr(ArrayBuffer(Identifier(Name("x")), MethodCall(Name("toString"),ArrayBuffer(BlockExpr(ArrayBuffer())))))
+      TestUtil.parse("x.toString()", ExpressionParser.expressionParser) shouldBe NestedExpr(ArrayBuffer(Identifier(Name("x")), MethodCall(Name("toString"), ArrayBuffer(BlockExpr(ArrayBuffer())))))
     }
   }
 

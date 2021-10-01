@@ -3,8 +3,6 @@ package transpiler.utils
 import fastparse.core.Parsed
 import fastparse.noApi.P
 
-import scala.util.Failure
-
 object TestUtil {
 
   def parse(text: String, parser: P[_]) = {

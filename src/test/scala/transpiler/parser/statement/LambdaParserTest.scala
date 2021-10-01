@@ -5,8 +5,7 @@ import org.scalatest.junit.JUnitRunner
 import org.scalatest.{FunSpec, Matchers}
 
 @RunWith(classOf[JUnitRunner])
-class LambdaParserTest extends FunSpec with Matchers
-{
+class LambdaParserTest extends FunSpec with Matchers {
   // TODO "fun x -> x"
 
   // TODO "fun (x:Int) -> x"
