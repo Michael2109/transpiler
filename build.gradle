@@ -1,6 +1,8 @@
 group 'group_id'
 version '1.0-SNAPSHOT'
 
+// Add Scalafix
+
 wrapper {
     gradleVersion = '5.6.4'
 }
