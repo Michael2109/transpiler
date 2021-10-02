@@ -1,6 +1,6 @@
 package transpiler.parser.ast
 
-import transpiler.parser.ast.AST.{Abstract, Block, ClassModel, Expression, Final, Method, Module, Operator, PackageLocal, Private, Protected, Public, Pure, RefLocal, RefQual, Statement}
+import transpiler.parser.ast.AST.{Abstract, Assign, Block, ClassModel, DoBlock, Expression, Final, Inline, IntConst, Method, Module, PackageLocal, Private, Protected, Public, Pure, RefLocal, RefQual, Statement}
 import transpiler.symbol_table.{ClassEntry, SymbolTable}
 
 import scala.collection.mutable.ListBuffer
@@ -59,14 +59,6 @@ object AST2IR {
     }
   }
 
-  def convertToIR(operator: Operator, `type`: TypeIR, method: MethodIR, symbolTable: SymbolTable): Unit = {
-
-  }
-
-  def convertToIR(expression: Expression, method: MethodIR, symbolTable: SymbolTable, imports: Map[String, String]): Unit = {
-
-  }
-
   def convertToIR(method: Method, symbolTable: SymbolTable, imports: Map[String, String]): MethodIR = {
 
     // name: String, modifiers: mutable.SortedSet[String], fields: ListBuffer[(String, String)], returnType: String, body: ListBuffer[StatementIR]
@@ -84,23 +76,39 @@ object AST2IR {
 
     //  val returnType = method.returnType.map(rT => rT.ref)
 
-    MethodIR(method.name.value, modifiers, ListBuffer(), "void", convertToIR(method.body, symbolTable, imports))
+    MethodIR(method.name.value, modifiers, ListBuffer(), "void", blockToIR(method.body, symbolTable, imports))
   }
 
 
-  def convertToIR(block: Block, symbolTable: SymbolTable, imports: Map[String, String]): List[StatementIR] = {
-    List()
-  }
-
-  def convertToIR(statement: Statement, method: MethodIR, symbolTable: SymbolTable, imports: Map[String, String]): Unit = {
-
-  }
-
-  def boxExpressionStart(typeIR: TypeIR, method: MethodIR): Unit = {
+  def blockToIR(block: Block, symbolTable: SymbolTable, imports: Map[String, String]): BlockIR = {
+    block match {
+      case inline: Inline => inlineToIR(inline, symbolTable, imports)
+      case doBlock: DoBlock => doBlockToIR(doBlock, symbolTable, imports)
+    }
 
   }
 
-  def boxExpressionEnd(typeIR: TypeIR, method: MethodIR): Unit = {
+  def inlineToIR(inline: Inline, symbolTable: SymbolTable, imports: Map[String, String]): InlineIR = {
+    val expressionIR = expressionToIR(inline.expression, symbolTable, imports)
+    InlineIR(expressionIR)
+  }
 
+  def doBlockToIR(doBlock: DoBlock, symbolTable: SymbolTable, imports: Map[String, String]): DoBlockIR = {
+    val statements = doBlock.statement.map(statement => {
+      statementToIR(statement, symbolTable, imports)
+    }).toList
+    DoBlockIR(statements)
+  }
+
+  def expressionToIR(expression: Expression, symbolTable: SymbolTable, imports: Map[String, String]): ExpressionIR = {
+    expression match {
+      case intConst: IntConst => IntConstIR(intConst.value)
+    }
+  }
+
+  def statementToIR(statement: Statement, symbolTable: SymbolTable, imports: Map[String, String]): StatementIR = {
+    statement match {
+      case Assign(name, _, immutable, block) => AssignIR(name.value, immutable, blockToIR(block, symbolTable, imports))
+    }
   }
 }

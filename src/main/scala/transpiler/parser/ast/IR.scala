@@ -21,19 +21,17 @@ case class ClassModelIR(nameSpace: String, name: String, parent: String) extends
   }
 }
 
-case class MethodIR(name: String, modifiers: List[ModifierIR], fields: ListBuffer[(String, String)], returnType: String, body: List[StatementIR]) {}
+case class MethodIR(name: String, modifiers: List[ModifierIR], fields: ListBuffer[(String, String)], returnType: String, body: BlockIR) {}
 
 
 trait BlockIR extends StatementIR
 
 case class InlineIR(expression: ExpressionIR) extends BlockIR
 
-case class DoBlockIR(statement: StatementIR) extends BlockIR
+case class DoBlockIR(statements: List[StatementIR]) extends BlockIR
 
 
 trait ExpressionIR
-
-case class AssignIR(id: Int, immutable: Boolean, block: BlockIR) extends ExpressionIR
 
 case class DoubleConstIR(value: BigDecimal) extends ExpressionIR
 
@@ -48,6 +46,8 @@ case class LongConstIR(value: BigInt) extends ExpressionIR
 case class StringLiteralIR(value: String) extends ExpressionIR
 
 trait StatementIR
+
+case class AssignIR(id: String, immutable: Boolean, block: BlockIR) extends StatementIR
 
 case class ExprAsStmtIR(expressionIR: ExpressionIR) extends StatementIR
 

@@ -17,7 +17,8 @@ class CodeGenTest extends FunSpec with Matchers {
       val code =
         """package x.y.z
           |class ClassName
-          |  let x(): Int = 1
+          |  let x(): Int = do
+          |    let y = 10
           |
         """.stripMargin.replace("\r", "")
       val ast: Module = TestUtil.parse(code, StatementParser.moduleParser).asInstanceOf[Module]

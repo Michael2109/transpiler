@@ -18,7 +18,7 @@ object CodeGen {
 
         stringBuilder.append(s"class ${classModel.name} {")
 
-        classModel.externalStatements.foreach(v => genCode(stringBuilder, v))
+        //  classModel.externalStatements.foreach(v => genCode(stringBuilder, v))
         classModel.methods.foreach(m => genCode(stringBuilder, m))
 
         stringBuilder.append("}")
@@ -26,13 +26,6 @@ object CodeGen {
     }
 
     stringBuilder.toString()
-  }
-
-  def genCode(sb: StringBuilder, statementIR: StatementIR): Unit = {
-    statementIR match {
-      case visit: Visit => //cw.visit(visit.version, visit.access, visit.name, visit.signature, visit.superName, visit.interfaces)
-      case visitField: VisitField => //cw.visitField(visitField.id, visitField.name, visitField.`type`, visitField.signature, visitField.value)
-    }
   }
 
   def genCode(sb: StringBuilder, method: MethodIR): Unit = {
@@ -43,7 +36,7 @@ object CodeGen {
     sb.append(method.fields.map(_._1).mkString(","))
     sb.append("){")
 
-    method.body.foreach(x => genCode(sb, x, method))
+    genCode(sb, method.body, method)
 
     sb.append("}")
   }
@@ -74,6 +67,7 @@ object CodeGen {
   }
 
   def genCode(sb: StringBuilder, statement: StatementIR, method: MethodIR): Unit = {
+    println(statement)
     statement match {
       /*case assign: AssignIR => {
         genCode(mv, assign.block)
@@ -126,12 +120,16 @@ object CodeGen {
       case _: LabelIR =>
       case visitLabel: VisitLabelIR => // mv.visitLabel(method.labels.get(visitLabel.id).get)
       case visitVarInsn: VisitVarInsn => // mv.visitVarInsn(visitVarInsn.opcode, visitVarInsn.id)
+      case AssignIR(name, immutable, block) => {
+        sb.append(s"const $name = ")
+        genCode(sb, block, method)
+      }
     }
   }
 
   def genCode(sb: StringBuilder, block: BlockIR, method: MethodIR): Unit = {
     block match {
-      case doBlock: DoBlockIR => genCode(sb, doBlock.statement, method)
+      case doBlock: DoBlockIR => doBlock.statements.foreach(statement => genCode(sb, statement, method))
       case inline: InlineIR => genCode(sb, inline.expression, method)
     }
   }
