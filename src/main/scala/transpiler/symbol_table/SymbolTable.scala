@@ -1,6 +1,6 @@
 package transpiler.symbol_table
 
-import transpiler.parser.ast.IRNew.TypeIR
+import transpiler.parser.ast.TypeIR
 
 import scala.collection.mutable.ListBuffer
 

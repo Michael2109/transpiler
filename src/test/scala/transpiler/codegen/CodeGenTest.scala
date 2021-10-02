@@ -7,7 +7,7 @@ import transpiler.code_gen.CodeGen
 import transpiler.parser.StatementParser
 import transpiler.parser.ast.AST._
 import transpiler.parser.ast.AST2IR
-import transpiler.parser.ast.IRNew.ModelIR
+import transpiler.parser.ast.ModelIR
 import transpiler.utils.TestUtil
 
 @RunWith(classOf[JUnitRunner])

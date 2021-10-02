@@ -1,12 +1,6 @@
 package transpiler.code_gen
 
-import java.io.PrintWriter
-
-import transpiler.parser.ast.IRNew._
-import transpiler.parser.ast.IRUtils
-
-import scala.tools.asm.util.CheckClassAdapter
-import scala.tools.asm.{Opcodes, _};
+import transpiler.parser.ast._;
 
 object CodeGen {
 
@@ -45,13 +39,13 @@ object CodeGen {
     println("Method")
     sb.append("function ")
     sb.append(method.name)
-      sb.append( "(")
-      sb.append(method.fields.map(_._1).mkString(","))
-      sb.append( "){")
+    sb.append("(")
+    sb.append(method.fields.map(_._1).mkString(","))
+    sb.append("){")
 
     method.body.foreach(x => genCode(sb, x, method))
 
-    sb.append( "}")
+    sb.append("}")
   }
 
   def genCode(sb: StringBuilder, expression: ExpressionIR, method: MethodIR): Unit = {
@@ -74,8 +68,8 @@ object CodeGen {
       case doubleConst: DoubleConstIR => sb.append(doubleConst.value.toString())
       case floatConst: FloatConstIR => sb.append(floatConst.value.toString())
       case intConst: IntConstIR => sb.append(intConst.value)
-      case longConst: LongConstIR =>  sb.append( longConst.value)
-      case stringLiteral: StringLiteralIR => sb.append( "\"" + stringLiteral.value + "\"")
+      case longConst: LongConstIR => sb.append(longConst.value)
+      case stringLiteral: StringLiteralIR => sb.append("\"" + stringLiteral.value + "\"")
     }
   }
 
@@ -85,7 +79,7 @@ object CodeGen {
         genCode(mv, assign.block)
         mv.visitVarInsn(IRUtils.getStoreOperator(assign.block), assign.id)
       }*/
-      case aStore: AStore =>// mv.visitVarInsn(Opcodes.ASTORE, aStore.id);
+      case aStore: AStore => // mv.visitVarInsn(Opcodes.ASTORE, aStore.id);
       /*case blockStmt: BlockStmtIR => blockStmt.statements.foreach(x => genCode(mv, x))*/
       case doBlock: DoBlockIR => genCode(sb, doBlock.asInstanceOf[BlockIR], method)
       case exprAsStmt: ExprAsStmtIR => genCode(sb, exprAsStmt.expressionIR, method)
@@ -100,42 +94,42 @@ object CodeGen {
         genCode(mv, ifStmt.elseBlock.getOrElse(BlockStmtIR(Seq())))
         mv.visitLabel(endLabel)
       }*/
-      case DAdd =>  sb.append( "+")
+      case DAdd => sb.append("+")
       case dStore: DStore => //mv.visitVarInsn(Opcodes.DSTORE, dStore.id);
-      case DSub =>  sb.append( "-")
-      case DMul =>  sb.append( "*")
-      case DDiv =>   sb.append( "/")
-      case FAdd =>   sb.append( "+")
+      case DSub => sb.append("-")
+      case DMul => sb.append("*")
+      case DDiv => sb.append("/")
+      case FAdd => sb.append("+")
       case fStore: FStore => //mv.visitVarInsn(Opcodes.FSTORE, fStore.id);
-      case FSub =>  sb.append( "-")
-      case FMul =>   sb.append( "*")
-      case FDiv =>   sb.append( "/")
-      case IAdd =>   sb.append( "+")
+      case FSub => sb.append("-")
+      case FMul => sb.append("*")
+      case FDiv => sb.append("/")
+      case IAdd => sb.append("+")
       case iStore: IStore => //mv.visitVarInsn(Opcodes.ISTORE, iStore.id);
-      case ISub =>   sb.append( "-")
-      case IMul =>   sb.append( "*")
-      case IDiv =>   sb.append( "/")
-      case LAdd =>   sb.append( "+")
+      case ISub => sb.append("-")
+      case IMul => sb.append("*")
+      case IDiv => sb.append("/")
+      case LAdd => sb.append("+")
       case lStore: LStore => //mv.visitVarInsn(Opcodes.LSTORE, lStore.id);
-      case LSub =>   sb.append( "-")
-      case LMul =>   sb.append( "*")
-      case LDiv =>   sb.append( "/")
+      case LSub => sb.append("-")
+      case LMul => sb.append("*")
+      case LDiv => sb.append("/")
       case inline: InlineIR => genCode(sb, inline.asInstanceOf[BlockIR], method)
       case visitFieldInst: VisitFieldInst => //sb.visitFieldInsn(visitFieldInst.opcode, visitFieldInst.owner, visitFieldInst.name, visitFieldInst.description)
       case visitJumpInsn: VisitJumpInst => //mv.visitJumpInsn(visitJumpInsn.opcode, method.labels.get(visitJumpInsn.labelId).get)
       case visitMethodInst: VisitMethodInsn => {
-  //      println(visitMethodInst)
-       // mv.visitMethodInsn(visitMethodInst.opcode, visitMethodInst.owner, visitMethodInst.name, visitMethodInst.description, false)
+        //      println(visitMethodInst)
+        // mv.visitMethodInsn(visitMethodInst.opcode, visitMethodInst.owner, visitMethodInst.name, visitMethodInst.description, false)
       }
       case visitTypeInst: VisitTypeInst => //mv.visitTypeInsn(visitTypeInst.opcode, visitTypeInst.name)
-      case visitInst: VisitInsn =>// mv.visitInsn(visitInst.opcode)
+      case visitInst: VisitInsn => // mv.visitInsn(visitInst.opcode)
       case _: LabelIR =>
-      case visitLabel: VisitLabelIR =>// mv.visitLabel(method.labels.get(visitLabel.id).get)
-      case visitVarInsn: VisitVarInsn =>// mv.visitVarInsn(visitVarInsn.opcode, visitVarInsn.id)
+      case visitLabel: VisitLabelIR => // mv.visitLabel(method.labels.get(visitLabel.id).get)
+      case visitVarInsn: VisitVarInsn => // mv.visitVarInsn(visitVarInsn.opcode, visitVarInsn.id)
     }
   }
 
-  def genCode(sb:StringBuilder, block: BlockIR, method: MethodIR): Unit = {
+  def genCode(sb: StringBuilder, block: BlockIR, method: MethodIR): Unit = {
     block match {
       case doBlock: DoBlockIR => genCode(sb, doBlock.statement, method)
       case inline: InlineIR => genCode(sb, inline.expression, method)
