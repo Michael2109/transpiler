@@ -1,17 +1,15 @@
 package transpiler.codegen
 
-import org.junit.runner.RunWith
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.{FunSpec, Matchers}
-import transpiler.code_gen.CodeGen
+import org.scalatest.funspec.AnyFunSpec
+import org.scalatest.matchers.must.Matchers
+import transpiler.codegen.CodeGen
 import transpiler.parser.StatementParser
 import transpiler.parser.ast.AST._
 import transpiler.parser.ast.AST2IR
 import transpiler.parser.ast.ModelIR
 import transpiler.utils.TestUtil
 
-@RunWith(classOf[JUnitRunner])
-class CodeGenTest extends FunSpec with Matchers {
+class CodeGenTest extends AnyFunSpec with Matchers {
   describe("Model parser") {
     it("Should parse a model with no fields") {
       val code =

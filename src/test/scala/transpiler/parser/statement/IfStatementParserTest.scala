@@ -1,16 +1,16 @@
 package transpiler.parser.statement
 
-import org.junit.runner.RunWith
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.{FunSpec, Matchers}
+import org.scalatest.funspec.AnyFunSpec
+import org.scalatest.matchers.must.Matchers
+import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
 import transpiler.parser.StatementParser
 import transpiler.parser.ast.AST._
 import transpiler.utils.TestUtil
 
 import scala.collection.mutable.ArrayBuffer
 
-@RunWith(classOf[JUnitRunner])
-class IfStatementParserTest extends FunSpec with Matchers {
+
+class IfStatementParserTest extends AnyFunSpec with Matchers {
   describe("If statement parser") {
     it("Should parse if statementParser - inline") {
       val code =

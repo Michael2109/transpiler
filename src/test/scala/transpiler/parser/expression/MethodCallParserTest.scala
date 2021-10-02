@@ -1,16 +1,15 @@
 package transpiler.parser.expression
 
-import org.junit.runner.RunWith
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.{FunSpec, Matchers}
+import org.scalatest.funspec.AnyFunSpec
+import org.scalatest.matchers.must.Matchers
+import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
 import transpiler.parser.ExpressionParser
 import transpiler.parser.ast.AST._
 import transpiler.utils.TestUtil
 
 import scala.collection.mutable.ArrayBuffer
 
-@RunWith(classOf[JUnitRunner])
-class MethodCallParserTest extends FunSpec with Matchers {
+class MethodCallParserTest extends AnyFunSpec with Matchers {
 
   describe("Method call parser test") {
     it("Should parse method calls - No arguments") {

@@ -1,9 +1,8 @@
 package transpiler.parser.ast
 
+import jdk.internal.org.objectweb.asm.Opcodes
 import transpiler.parser.ast.AST._
 import transpiler.symbol_table.{SymbolTable, ValueEntry}
-
-import scala.tools.asm.Opcodes
 
 object IRUtils {
 
@@ -82,44 +81,6 @@ object IRUtils {
       case _: StringLiteral => StringLiteralType()
     }
   }
-
-  def getStoreOperator(statement: Statement): Int = {
-    statement match {
-      case inline: Inline => getStoreOperator(inline.expression)
-      case doBlock: DoBlock => {
-        getStoreOperator(doBlock.statement.head)
-      }
-      case blockStmt: BlockStmt => getStoreOperator(blockStmt.statements.head)
-    }
-  }
-
-  def getStoreOperator(expression: Expression): Int = {
-    expression match {
-      case aBinaryIR: ABinary => getStoreOperator(aBinaryIR.expression1)
-      case _: IntConstIR => Opcodes.ISTORE
-      case _: LongConst => Opcodes.LSTORE
-      case _: FloatConst => Opcodes.FSTORE
-      case _: DoubleConst => Opcodes.DSTORE
-    }
-  }
-
-  def getStoreOperator(t: TypeIR, id: Int): StoreOperators = {
-    t match {
-      case _: IntType => IStore(id)
-      case _: LongType => LStore(id)
-      case _: StringLiteralType => AStore(id);
-      case _: ObjectType => AStore(id)
-    }
-  }
-
-  def getLoadOperator(t: TypeIR): Int = {
-    t match {
-      case intType: IntType => Opcodes.ILOAD
-      case longType: LongType => Opcodes.LLOAD
-      case _ => Opcodes.ALOAD
-    }
-  }
-
 
   def getArithmeticOperator(op: Operator, expression1: Expression, expression2: Expression): Int = {
 

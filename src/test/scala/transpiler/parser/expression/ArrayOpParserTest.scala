@@ -1,11 +1,9 @@
 package transpiler.parser.expression
 
-import org.junit.runner.RunWith
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.{FunSpec, Matchers}
+import org.scalatest.funspec.AnyFunSpec
+import org.scalatest.matchers.must.Matchers
 
-@RunWith(classOf[JUnitRunner])
-class ArrayOpParserTest extends FunSpec with Matchers {
+class ArrayOpParserTest extends AnyFunSpec with Matchers {
 
   // TODO "x ++ y"
 

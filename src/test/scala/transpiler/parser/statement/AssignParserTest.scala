@@ -1,16 +1,16 @@
 package transpiler.parser.statement
 
-import org.junit.runner.RunWith
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.{FunSpec, Matchers}
+import org.scalatest.funspec.AnyFunSpec
+import org.scalatest.matchers.must.Matchers
+import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
 import transpiler.parser.StatementParser
 import transpiler.parser.ast.AST._
 import transpiler.utils.TestUtil
 
 import scala.collection.mutable.ArrayBuffer
 
-@RunWith(classOf[JUnitRunner])
-class AssignParserTest extends FunSpec with Matchers {
+
+class AssignParserTest extends AnyFunSpec with Matchers {
   describe("Assignment parser") {
     it("Should parse assignment") {
       TestUtil.parse("let x = 10", StatementParser.statementParser) shouldBe Assign(Name("x"), None, true, Inline(IntConst(10)))

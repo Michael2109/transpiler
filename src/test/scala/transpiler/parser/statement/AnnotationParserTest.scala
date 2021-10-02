@@ -1,14 +1,14 @@
 package transpiler.parser.statement
 
-import org.junit.runner.RunWith
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.{FunSpec, Matchers}
+import org.scalatest.funspec.AnyFunSpec
+import org.scalatest.matchers.must.Matchers
+import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
 import transpiler.parser.ExpressionParser
 import transpiler.parser.ast.AST.{Annotation, Name}
 import transpiler.utils.TestUtil
 
-@RunWith(classOf[JUnitRunner])
-class AnnotationParserTest extends FunSpec with Matchers {
+
+class AnnotationParserTest extends AnyFunSpec with Matchers {
 
   describe("Annotation parser") {
 

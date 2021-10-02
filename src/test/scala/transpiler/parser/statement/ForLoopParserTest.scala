@@ -1,11 +1,10 @@
 package transpiler.parser.statement
 
-import org.junit.runner.RunWith
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.{FunSpec, Matchers}
+import org.scalatest.funspec.AnyFunSpec
+import org.scalatest.matchers.must.Matchers
+import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
 
-@RunWith(classOf[JUnitRunner])
-class ForLoopParserTest extends FunSpec with Matchers {
+class ForLoopParserTest extends AnyFunSpec with Matchers {
   // TODO "for(i <- 0 to 10)"
 
 }

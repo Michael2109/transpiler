@@ -1,11 +1,9 @@
 package transpiler.parser.statement
 
-import org.junit.runner.RunWith
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.{FunSpec, Matchers}
-
-@RunWith(classOf[JUnitRunner])
-class ImportParserTest extends FunSpec with Matchers {
+import org.scalatest.funspec.AnyFunSpec
+import org.scalatest.matchers.must.Matchers
+import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
+class ImportParserTest extends AnyFunSpec with Matchers {
   // TODO "import x"
 
   // TODO "import x.y"

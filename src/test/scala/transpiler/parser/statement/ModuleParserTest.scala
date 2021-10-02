@@ -1,16 +1,16 @@
 package transpiler.parser.statement
 
-import org.junit.runner.RunWith
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.{FunSpec, Matchers}
+import org.scalatest.funspec.AnyFunSpec
+import org.scalatest.matchers.must.Matchers
+import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
 import transpiler.parser.StatementParser
 import transpiler.parser.ast.AST._
 import transpiler.utils.TestUtil
 
 import scala.collection.mutable.ArrayBuffer
 
-@RunWith(classOf[JUnitRunner])
-class ModuleParserTest extends FunSpec with Matchers {
+
+class ModuleParserTest extends AnyFunSpec with Matchers {
   describe("ModuleIR parser") {
     it("Should parse modules") {
       val code = "package x.y.z\nclass ClassName\n  let x(): Int = 1\n"

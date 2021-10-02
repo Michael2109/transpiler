@@ -1,14 +1,13 @@
 package transpiler.parser.expression
 
-import org.junit.runner.RunWith
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.{FunSpec, Matchers}
+import org.scalatest.funspec.AnyFunSpec
+import org.scalatest.matchers.must.Matchers
+import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
 import transpiler.parser.ExpressionParser
 import transpiler.parser.ast.AST.{DoubleConst, FloatConst, IntConst, LongConst}
 import transpiler.utils.TestUtil
 
-@RunWith(classOf[JUnitRunner])
-class NumberParserTest extends FunSpec with Matchers {
+class NumberParserTest extends AnyFunSpec with Matchers {
   describe("Number parser") {
     it("Should parse integers") {
       TestUtil.parse("100", ExpressionParser.expressionParser) shouldBe IntConst(100)

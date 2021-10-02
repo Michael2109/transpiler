@@ -1,16 +1,16 @@
 package transpiler.parser.statement
 
-import org.junit.runner.RunWith
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.{FunSpec, Matchers}
+import org.scalatest.funspec.AnyFunSpec
+import org.scalatest.matchers.must.Matchers
+import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
 import transpiler.parser.StatementParser
 import transpiler.parser.ast.AST._
 import transpiler.utils.TestUtil
 
 import scala.collection.mutable.ArrayBuffer
 
-@RunWith(classOf[JUnitRunner])
-class ReassignParserTest extends FunSpec with Matchers {
+
+class ReassignParserTest extends AnyFunSpec with Matchers {
   describe("Reassign parser") {
     it("Should parse reassignment an inline statementParser") {
       TestUtil.parse("x <- 2", StatementParser.statementParser) shouldBe Reassign(Name("x"), Inline(IntConst(2)))

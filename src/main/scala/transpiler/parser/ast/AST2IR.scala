@@ -4,8 +4,6 @@ import transpiler.parser.ast.AST.{Abstract, Assign, Block, ClassModel, DoBlock, 
 import transpiler.symbol_table.{ClassEntry, SymbolTable}
 
 import scala.collection.mutable.ListBuffer
-import scala.tools.asm.Opcodes
-
 
 object AST2IR {
 
@@ -32,7 +30,7 @@ object AST2IR {
 
         val classModelIR = ClassModelIR(module.header.nameSpace.nameSpace.map(_.value).mkString("/"), classModel.name.value, superClass)
 
-        classModelIR.externalStatements += Visit(Opcodes.V1_8, Opcodes.ACC_PUBLIC | Opcodes.ACC_SUPER, module.header.nameSpace.nameSpace.map(_.value).mkString("/") + "/" + classModel.name.value, null, superClass, interfaces)
+        // classModelIR.externalStatements += Visit(Opcodes.V1_8, Opcodes.ACC_PUBLIC | Opcodes.ACC_SUPER, module.header.nameSpace.nameSpace.map(_.value).mkString("/") + "/" + classModel.name.value, null, superClass, interfaces)
 
         val classSymbolTable: SymbolTable = new ClassEntry("")
         classModel.body.foreach(s => {
