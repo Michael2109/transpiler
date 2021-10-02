@@ -55,7 +55,9 @@ object AST2IR {
   }
 
   def convertToIR(statement: Statement, model: ClassModelIR, symbolTable: SymbolTable, imports: Map[String, String]): Unit = {
-
+    statement match {
+      case method: Method => model.methods += convertToIR(method, symbolTable, imports)
+    }
   }
 
   def convertToIR(operator: Operator, `type`: TypeIR, method: MethodIR, symbolTable: SymbolTable): Unit = {
@@ -64,6 +66,31 @@ object AST2IR {
 
   def convertToIR(expression: Expression, method: MethodIR, symbolTable: SymbolTable, imports: Map[String, String]): Unit = {
 
+  }
+
+  def convertToIR(method: Method, symbolTable: SymbolTable, imports: Map[String, String]): MethodIR = {
+
+    // name: String, modifiers: mutable.SortedSet[String], fields: ListBuffer[(String, String)], returnType: String, body: ListBuffer[StatementIR]
+    val modifiers: List[ModifierIR] = method.modifiers.map(modifier => modifier match {
+      case Public() => PublicIR()
+      case Private() => PrivateIR()
+      case Protected() => ProtectedIR()
+      case Final() => FinalIR()
+      case Pure() => PureIR()
+      case PackageLocal() => PackageLocalIR()
+      case Abstract() => AbstractIR()
+    }).toList
+
+   // val fields = method.fields.map(field => field.)
+
+  //  val returnType = method.returnType.map(rT => rT.ref)
+
+    MethodIR(method.name.value, modifiers, ListBuffer(), "void", convertToIR(method.body, symbolTable, imports ))
+  }
+
+
+  def convertToIR(block: Block, symbolTable: SymbolTable, imports: Map[String, String]): List[StatementIR] = {
+      List()
   }
 
   def convertToIR(statement: Statement, method: MethodIR, symbolTable: SymbolTable, imports: Map[String, String]): Unit = {
@@ -99,28 +126,7 @@ object IRNew {
     }
   }
 
-  case class MethodIR(name: String, modifiers: mutable.SortedSet[Int], fields: ListBuffer[(String, String)], returnType: String, body: ListBuffer[StatementIR]) {
-
-    private var nextVarId = 0
-
-    def getNextVarId(): Int = {
-      val id = nextVarId
-      nextVarId += 1
-      return id
-    }
-
-    val labels: mutable.SortedMap[Int, Label] = mutable.SortedMap[Int, Label]()
-
-    def createLabel(): Int = {
-      labels.put(labels.size, new Label)
-      val id = labels.size - 1
-      id
-    }
-
-    def visitLabel(id: Int): Unit = {
-      body += VisitLabelIR(id)
-    }
-  }
+  case class MethodIR(name: String, modifiers: List[ModifierIR], fields: ListBuffer[(String, String)], returnType: String, body: List[StatementIR]) {  }
 
 
   trait BlockIR extends StatementIR
@@ -254,4 +260,20 @@ object IRNew {
 
   case class VisitVarInsn(opcode: Int, id: Int) extends StatementIR
 
+
+  trait ModifierIR
+
+  case class PublicIR() extends ModifierIR
+
+  case class ProtectedIR() extends ModifierIR
+
+  case class PrivateIR() extends ModifierIR
+
+  case class PackageLocalIR() extends ModifierIR
+
+  case class AbstractIR() extends ModifierIR
+
+  case class FinalIR() extends ModifierIR
+
+  case class PureIR() extends ModifierIR
 }
