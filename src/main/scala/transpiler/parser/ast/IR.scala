@@ -37,7 +37,7 @@ case class DoubleConstIR(value: BigDecimal) extends ExpressionIR
 
 case class FloatConstIR(value: BigDecimal) extends ExpressionIR
 
-case class IdentifierIR(id: Int, `type`: TypeIR) extends ExpressionIR
+case class IdentifierIR(name: String, `type`: TypeIR) extends ExpressionIR
 
 case class IntConstIR(value: BigInt) extends ExpressionIR
 
@@ -51,7 +51,9 @@ case class AssignIR(id: String, immutable: Boolean, block: BlockIR) extends Stat
 
 case class ExprAsStmtIR(expressionIR: ExpressionIR) extends StatementIR
 
-case class IfIR(condition: ExpressionIR, isStmt: StatementIR, elseStmt: StatementIR)
+case class IfIR(condition: ExpressionIR, isStmt: StatementIR, elseStmt: StatementIR) extends StatementIR
+
+case class ForIR(identifierIR: IdentifierIR, expressionIR: ExpressionIR, blockIR: BlockIR) extends StatementIR
 
 case class LabelIR(id: Int) extends StatementIR
 

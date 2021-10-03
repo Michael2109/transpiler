@@ -1,6 +1,6 @@
 package transpiler.parser.ast
 
-import transpiler.parser.ast.AST.{Abstract, Assign, Block, ClassModel, DoBlock, Expression, Final, Inline, IntConst, Method, Module, PackageLocal, Private, Protected, Public, Pure, RefLocal, RefQual, Statement}
+import transpiler.parser.ast.AST.{Abstract, Assign, Block, ClassModel, DoBlock, Expression, Final, For, Identifier, Inline, IntConst, Method, Module, Name, PackageLocal, Private, Protected, Public, Pure, RefLocal, RefQual, Statement}
 import transpiler.symbol_table.{ClassEntry, SymbolTable}
 
 import scala.collection.mutable.ListBuffer
@@ -101,12 +101,18 @@ object AST2IR {
   def expressionToIR(expression: Expression, symbolTable: SymbolTable, imports: Map[String, String]): ExpressionIR = {
     expression match {
       case intConst: IntConst => IntConstIR(intConst.value)
+      case identifier: Identifier => identifierToIR(identifier, symbolTable, imports)
     }
+  }
+
+  def identifierToIR(identifier: Identifier, symbolTable: SymbolTable, imports: Map[String, String]): IdentifierIR = {
+   IdentifierIR(identifier.name.value, null)
   }
 
   def statementToIR(statement: Statement, symbolTable: SymbolTable, imports: Map[String, String]): StatementIR = {
     statement match {
       case Assign(name, _, immutable, block) => AssignIR(name.value, immutable, blockToIR(block, symbolTable, imports))
+      case For(identifier, expression, block) => ForIR(identifierToIR(identifier, symbolTable, imports), expressionToIR(expression, symbolTable, imports), blockToIR(block, symbolTable, imports))
     }
   }
 }

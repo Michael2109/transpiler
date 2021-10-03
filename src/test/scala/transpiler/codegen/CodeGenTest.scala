@@ -15,18 +15,18 @@ class CodeGenTest extends AnyFunSpec with Matchers {
       val code =
         """package x.y.z
           |class ClassName
-          |  let x(): Int = do
+          |  let x() Int:
           |    let y = 10
-          |    for i in array do
+          |    for i in array:
           |      let z = 20
           |
         """.stripMargin.replace("\r", "")
       val ast: Module = TestUtil.parse(code, StatementParser.moduleParser).asInstanceOf[Module]
 
+      println(ast)
       // Process AST
       val modelIRs: Seq[ModelIR] = Array(ast).map(x => AST2IR.astToIR(x)).head
 
-      println(ast)
       println(modelIRs)
 
       val compiledCode = modelIRs.map(CodeGen.genModelCode)
