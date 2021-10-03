@@ -37,6 +37,11 @@ class Statements(indent: Int) {
     P(ifParser ~ elseParser.?).map(x => If(x._1, x._2, x._3))
   }
 
+  val forLoopParser: P[For] = {
+    val forParser = P(LexicalParser.kw("for") ~/ ExpressionParser.identifierParser ~ P(LexicalParser.kw("in")) ~ ExpressionParser.expressionParser ~ blockParser).map(x => (x._1, x._2, x._3))
+    P(forParser).map(x => For(x._1, x._2 ,x._3))
+  }
+
   val importParser: P[Import] = P(LexicalParser.kw("import") ~/ ExpressionParser.nameParser.rep(sep = ".")).map(Import)
 
   val fieldParser: P[Field] = P(ExpressionParser.nameParser ~ ":" ~ ExpressionParser.typeRefParser).map(x => Field(x._1, x._2, None))
@@ -51,7 +56,7 @@ class Statements(indent: Int) {
 
   val reassignParser: P[Reassign] = P(ExpressionParser.nameParser ~ "<-" ~/ blockParser).map(x => Reassign(x._1, x._2))
 
-  val statementParser: P[Statement] = P(!commentParser ~ (modelParser | ifStatementParser | methodParser | assignParser | reassignParser | exprAsStmt))
+  val statementParser: P[Statement] = P(!commentParser ~ (modelParser | ifStatementParser | forLoopParser | methodParser | assignParser | reassignParser | exprAsStmt))
 
   val indentedBlock: P[Seq[Statement]] = {
     val deeper: P[Int] = {

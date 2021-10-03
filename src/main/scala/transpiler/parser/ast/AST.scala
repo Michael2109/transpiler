@@ -120,7 +120,7 @@ object AST {
 
   case class Method(name: Name, annotations: Seq[Annotation], fields: Seq[Field], modifiers: Seq[Modifier], returnType: Option[Type], body: Block) extends Statement
 
-  case class For() extends Statement
+  case class For(identifier: Identifier, expression: Expression, block: Block) extends Statement
 
   case class While() extends Statement
 

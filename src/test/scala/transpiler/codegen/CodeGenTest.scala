@@ -17,6 +17,8 @@ class CodeGenTest extends AnyFunSpec with Matchers {
           |class ClassName
           |  let x(): Int = do
           |    let y = 10
+          |    for i in array do
+          |      let z = 20
           |
         """.stripMargin.replace("\r", "")
       val ast: Module = TestUtil.parse(code, StatementParser.moduleParser).asInstanceOf[Module]
@@ -27,9 +29,10 @@ class CodeGenTest extends AnyFunSpec with Matchers {
       println(ast)
       println(modelIRs)
 
-
       val compiledCode = modelIRs.map(CodeGen.genModelCode)
       println(compiledCode)
+
+
     }
 
   }
