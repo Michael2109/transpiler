@@ -26,11 +26,11 @@ class Statements(indent: Int) {
   val exprAsStmt: P[Statement] = P(ExpressionParser.expressionParser).map(ExprAsStmt)
 
   val ifStatementParser: P[If] = {
-    def ifParser: P[(Expression, Statement)] = P(LexicalParser.kw("if") ~/ ExpressionParser.expressionParser ~ P(LexicalParser.kw("then")) ~ blockParser).map(x => (x._1, x._2))
+    def ifParser: P[(Expression, Statement)] = P(LexicalParser.kw("if") ~/ ExpressionParser.expressionParser ~ blockParser).map(x => (x._1, x._2))
 
     def elseParser: P[Statement] = P(elifP ~ elseParser.?).map(x => If(x._1, x._2, x._3)) | P(elseP)
 
-    def elifP: P[(Expression, Statement)] = P(LexicalParser.kw("elif") ~/ ExpressionParser.expressionParser ~ LexicalParser.kw("then") ~ blockParser).map(x => (x._1, x._2))
+    def elifP: P[(Expression, Statement)] = P(LexicalParser.kw("elif") ~/ ExpressionParser.expressionParser ~ blockParser).map(x => (x._1, x._2))
 
     def elseP: P[Statement] = P(LexicalParser.kw("else") ~/ blockParser).map(x => x)
 

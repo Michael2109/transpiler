@@ -18,7 +18,8 @@ class CodeGenTest extends AnyFunSpec with Matchers {
           |  let x() Int:
           |    let y = 10
           |    for i in array:
-          |      let z = 20
+          |      if y < 5:
+          |        println("Something")
           |
         """.stripMargin.replace("\r", "")
       val ast: Module = TestUtil.parse(code, StatementParser.moduleParser).asInstanceOf[Module]
