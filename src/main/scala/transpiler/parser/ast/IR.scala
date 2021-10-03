@@ -45,13 +45,15 @@ case class LongConstIR(value: BigInt) extends ExpressionIR
 
 case class StringLiteralIR(value: String) extends ExpressionIR
 
+case class RBinaryIR(expressionIR1: ExpressionIR, expressionIR2: ExpressionIR) extends ExpressionIR
+
 trait StatementIR
 
 case class AssignIR(id: String, immutable: Boolean, block: BlockIR) extends StatementIR
 
 case class ExprAsStmtIR(expressionIR: ExpressionIR) extends StatementIR
 
-case class IfIR(condition: ExpressionIR, isStmt: StatementIR, elseStmt: StatementIR) extends StatementIR
+case class IfStatementIR(condition: ExpressionIR, isStmt: StatementIR, elseStmt: StatementIR) extends StatementIR
 
 case class ForIR(identifierIR: IdentifierIR, expressionIR: ExpressionIR, blockIR: BlockIR) extends StatementIR
 

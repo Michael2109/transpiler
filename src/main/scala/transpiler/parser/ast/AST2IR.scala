@@ -1,6 +1,7 @@
 package transpiler.parser.ast
 
-import transpiler.parser.ast.AST.{Abstract, Assign, Block, ClassModel, DoBlock, Expression, Final, For, Identifier, Inline, IntConst, Method, Module, Name, PackageLocal, Private, Protected, Public, Pure, RefLocal, RefQual, Statement}
+import sun.tools.tree.IfStatement
+import transpiler.parser.ast.AST.{Abstract, Assign, Block, ClassModel, DoBlock, ExprAsStmt, Expression, Final, For, Identifier, If, Inline, IntConst, Method, Module, Name, PackageLocal, Private, Protected, Public, Pure, RBinary, RefLocal, RefQual, Statement}
 import transpiler.symbol_table.{ClassEntry, SymbolTable}
 
 import scala.collection.mutable.ListBuffer
@@ -98,21 +99,32 @@ object AST2IR {
     DoBlockIR(statements)
   }
 
-  def expressionToIR(expression: Expression, symbolTable: SymbolTable, imports: Map[String, String]): ExpressionIR = {
-    expression match {
-      case intConst: IntConst => IntConstIR(intConst.value)
-      case identifier: Identifier => identifierToIR(identifier, symbolTable, imports)
-    }
+  def expressionToIR(expression: Expression, symbolTable: SymbolTable, imports: Map[String, String]): ExpressionIR = expression match {
+    case intConst: IntConst => IntConstIR(intConst.value)
+    case identifier: Identifier => identifierToIR(identifier, symbolTable, imports)
+    case rBinary: RBinary => RBinaryIR(expressionToIR(rBinary.expression1, symbolTable, imports), expressionToIR(rBinary.expression2, symbolTable, imports))
   }
 
   def identifierToIR(identifier: Identifier, symbolTable: SymbolTable, imports: Map[String, String]): IdentifierIR = {
    IdentifierIR(identifier.name.value, null)
   }
 
+
+  def ifToIR(ifStatement: If, symbolTable: SymbolTable, imports: Map[String, String]): IfStatementIR = {
+  //  condition: ExpressionIR, isStmt: StatementIR, elseStmt: StatementIR
+    val elseBlock = if(ifStatement.elseBlock.isDefined  )    statementToIR(ifStatement.elseBlock.get, symbolTable, imports) else null
+
+    IfStatementIR(expressionToIR(ifStatement.condition, symbolTable, imports), statementToIR(ifStatement.ifBlock, symbolTable, imports), elseBlock)
+   // IdentifierIR(identifier.name.value, null)
+  }
+
   def statementToIR(statement: Statement, symbolTable: SymbolTable, imports: Map[String, String]): StatementIR = {
     statement match {
       case Assign(name, _, immutable, block) => AssignIR(name.value, immutable, blockToIR(block, symbolTable, imports))
       case For(identifier, expression, block) => ForIR(identifierToIR(identifier, symbolTable, imports), expressionToIR(expression, symbolTable, imports), blockToIR(block, symbolTable, imports))
+      case ifStatement: If => ifToIR(ifStatement, symbolTable, imports)
+      case doBlock: DoBlock => doBlockToIR(doBlock, symbolTable, imports)
+      case exprAsStmt: ExprAsStmt => ExprAsStmtIR(expressionToIR(exprAsStmt.expression, symbolTable, imports))
     }
   }
 }
