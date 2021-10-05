@@ -62,7 +62,7 @@ object CodeGen {
     }
   }
 
-  def identifierGenCode(identifierIR: IdentifierIR): String ={
+  def identifierGenCode(identifierIR: IdentifierIR): String = {
     identifierIR.name
   }
 

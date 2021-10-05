@@ -62,7 +62,7 @@ object AST {
 
   case class Inline(expression: Expression) extends Block
 
-  case class DoBlock(statement: Seq[Statement]) extends Block
+  case class BraceBlock(statement: Seq[Statement]) extends Block
 
   trait Expression
 

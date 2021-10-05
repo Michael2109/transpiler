@@ -1,23 +1,27 @@
 package transpiler.parser
 
-object WsApi extends fastparse.WhitespaceApi.Wrapper(LexicalParser.wscomment)
+import fastparse.NoWhitespace._
+import fastparse._
 
 object LexicalParser {
 
-  import fastparse.all._
+  //def kw(s: String) = s ~ !(letter | digit | "_")
 
-  def kw(s: String) = s ~ !(letter | digit | "_")
+  def Newline[_: P] = P( NoTrace(StringIn("\r\n", "\n")) )
 
-  val comment = P("#" ~ CharsWhile(_ != '\n', min = 0))
-  val wscomment = P((CharsWhileIn(" \n") | LexicalParser.comment | "\\\n").rep)
-  val nonewlinewscomment = P((CharsWhileIn(" ") | LexicalParser.comment | "\\\n").rep)
+  def space[_: P] = P( CharsWhileIn(" \r\n", 0) )
 
-  val identifier: P[String] =
-    P((letter | "_") ~ (letter | digit | "_").rep).!.filter(!keywordList.contains(_))
-  val letter = P(lowercase | uppercase)
-  val lowercase = P(CharIn('a' to 'z'))
-  val uppercase = P(CharIn('A' to 'Z'))
-  val digit = P(CharIn('0' to '9'))
+  def booleanConst[_: P]: P[Boolean] = P("true" | "false").!.map(b => b == "true")
+
+  def identifier[_: P]: P[String] = P((letter | "_") ~ (letter | digit | "_").rep).!.filter(!keywordList.contains(_))
+
+  def letter[_: P]: P[Unit] = P(lowercase | uppercase)
+
+  def lowercase[_: P]: P[Unit] = P(CharIn("a-z"))
+
+  def uppercase[_: P]: P[Unit] = P(CharIn("A-Z"))
+
+  def digit[_: P]: P[Int] = P(CharIn("0-9").rep(1).!.map(_.toInt))
 
   val keywordList = Set(
     "and", "del", "from", "not", "while",
@@ -30,52 +34,63 @@ object LexicalParser {
     "let"
   )
 
-  val stringliteral: P[String] = P(stringprefix.? ~ (longstring | shortstring))
-  val stringprefix: P0 = P(
+  def stringLiteral[_: P]: P[String] = P(stringPrefix.? ~ (longString | shortString))
+
+  def stringPrefix[_: P]: P[Unit] = P(
     "r" | "u" | "ur" | "R" | "U" | "UR" | "Ur" | "uR" | "b" | "B" | "br" | "Br" | "bR" | "BR"
   )
-  val shortstring: P[String] = P(shortstring0("'") | shortstring0("\""))
 
-  def shortstring0(delimiter: String) = P(delimiter ~ shortstringitem(delimiter).rep.! ~ delimiter)
+  def shortString[_: P]: P[String] = P(shortString0("'") | shortString0("\""))
 
-  def shortstringitem(quote: String): P0 = P(shortstringchar(quote) | escapeseq)
+  def shortString0[_: P](delimiter: String): P[String] = P(delimiter ~ shortStringItem(delimiter).rep.! ~ delimiter)
 
-  def shortstringchar(quote: String): P0 = P(CharsWhile(!s"\\\n${quote(0)}".contains(_)))
+  def shortStringItem[_: P](quote: String): P[Unit] = P(shortStringChar(quote) | escapeSeq)
 
-  val longstring: P[String] = P(longstring0("'''") | longstring0("\"\"\""))
+  def shortStringChar[_: P](quote: String): P[Unit] = P(CharsWhile(!s"\\\n${quote(0)}".contains(_)))
 
-  def longstring0(delimiter: String) = P(delimiter ~ longstringitem(delimiter).rep.! ~ delimiter)
+  def longString[_: P]: P[String] = P(longString0("'''") | longString0("\"\"\""))
 
-  def longstringitem(quote: String): P0 = P(longstringchar(quote) | escapeseq | !quote ~ quote.take(1))
+  def longString0[_: P](delimiter: String): P[String] = P(delimiter ~ longStringItem(delimiter).rep.! ~ delimiter)
 
-  def longstringchar(quote: String): P0 = P(CharsWhile(!s"\\${quote(0)}".contains(_)))
+  def longStringItem[_: P](quote: String): P[Unit] = P(longStringChar(quote) | escapeSeq | !quote ~ quote.take(1))
 
-  val escapeseq: P0 = P("\\" ~ AnyChar)
+  def longStringChar[_: P](quote: String): P[Unit] = P(CharsWhile(!s"\\${quote(0)}".contains(_)))
 
-  def negatable[T](p: P[T])(implicit ev: Numeric[T]) = (("+" | "-").?.! ~ p).map {
-    case ("-", i) => ev.negate(i)
-    case (_, i) => i
-  }
+  def escapeSeq[_: P]: P[Unit] = P("\\" ~ AnyChar)
 
-  val longinteger: P[BigInt] = P(integer ~ ("l" | "L"))
-  val integer: P[BigInt] = negatable[BigInt](P(octinteger | hexinteger | bininteger | decimalinteger))
-  val decimalinteger: P[BigInt] = P(nonzerodigit ~ digit.rep | "0").!.map(scala.BigInt(_))
-  val octinteger: P[BigInt] = P("0" ~ ("o" | "O") ~ octdigit.rep(1).! | "0" ~ octdigit.rep(1).!).map(scala.BigInt(_, 8))
-  val hexinteger: P[BigInt] = P("0" ~ ("x" | "X") ~ hexdigit.rep(1).!).map(scala.BigInt(_, 16))
-  val bininteger: P[BigInt] = P("0" ~ ("b" | "B") ~ bindigit.rep(1).!).map(scala.BigInt(_, 2))
-  val nonzerodigit: P0 = P(CharIn('1' to '9'))
-  val octdigit: P0 = P(CharIn('0' to '7'))
-  val bindigit: P0 = P("0" | "1")
-  val hexdigit: P0 = P(digit | CharIn('a' to 'f', 'A' to 'F'))
+  def longInteger[_: P]: P[BigInt] = P(integer ~ ("l" | "L"))
 
+  def integer[_: P]: P[BigInt] = (P(octInteger | hexInteger | binInteger | decimalInteger))
 
-  val floatnumber: P[BigDecimal] = negatable[BigDecimal](P(pointfloat | exponentfloat))
-  val pointfloat: P[BigDecimal] = P(intpart.? ~ fraction | intpart ~ ".").!.map(BigDecimal(_))
-  val exponentfloat: P[BigDecimal] = P((intpart | pointfloat) ~ exponent).!.map(BigDecimal(_))
-  val intpart: P[BigDecimal] = P(digit.rep(1)).!.map(BigDecimal(_))
-  val fraction: P0 = P("." ~ digit.rep(1))
-  val exponent: P0 = P(("e" | "E") ~ ("+" | "-").? ~ digit.rep(1))
+  def decimalInteger[_: P]: P[BigInt] = P(nonZeroDigit ~ digit.rep | "0").!.map(scala.BigInt(_))
+
+  def octInteger[_: P]: P[BigInt] = P("0" ~ ("o" | "O") ~ octDigit.rep(1).! | "0" ~ octDigit.rep(1).!).map(scala.BigInt(_, 8))
+
+  def hexInteger[_: P]: P[BigInt] = P("0" ~ ("x" | "X") ~ hexDigit.rep(1).!).map(scala.BigInt(_, 16))
+
+  def binInteger[_: P]: P[BigInt] = P("0" ~ ("b" | "B") ~ binDigit.rep(1).!).map(scala.BigInt(_, 2))
+
+  def nonZeroDigit[_: P]: P[Unit] = P(CharIn("1-9"))
+
+  def octDigit[_: P]: P[Unit] = P(CharIn("0-7"))
+
+  def binDigit[_: P]: P[Unit] = P("0" | "1")
+
+  def hexDigit[_: P]: P[AnyVal] = P(digit | CharIn("a-f", "A-F"))
 
 
-  val imagnumber = P((floatnumber | intpart) ~ ("j" | "J"))
+  def floatNumber[_: P]: P[BigDecimal] = P(pointFloat).!.map(BigDecimal(_))
+
+  def pointFloat[_: P]: P[BigDecimal] = P((intPart.? ~ fraction) | (intPart ~ ".")).!.map(BigDecimal(_))
+
+  def exponentFloat[_: P]: P[BigDecimal] = P((intPart | pointFloat) ~ exponent).!.map(BigDecimal(_))
+
+  def intPart[_: P]: P[BigDecimal] = P(digit.rep(1)).!.map(BigDecimal(_))
+
+  def fraction[_: P]: P[Seq[Int]] = P("." ~ digit.rep(1))
+
+  def exponent[_: P]: P[Seq[Int]] = P(("e" | "E") ~ ("+" | "-").? ~ digit.rep(1))
+
+
+  def imagnumber[_: P]: P[BigDecimal] = P((floatNumber | intPart) ~ ("j" | "J"))
 }

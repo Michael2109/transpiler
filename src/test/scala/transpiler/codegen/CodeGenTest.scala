@@ -2,12 +2,9 @@ package transpiler.codegen
 
 import org.scalatest.funspec.AnyFunSpec
 import org.scalatest.matchers.must.Matchers
-import transpiler.codegen.CodeGen
-import transpiler.parser.StatementParser
 import transpiler.parser.ast.AST._
 import transpiler.parser.ast.AST2IR
 import transpiler.parser.ast.ModelIR
-import transpiler.utils.TestUtil
 
 class CodeGenTest extends AnyFunSpec with Matchers {
   describe("Model parser") {
@@ -22,7 +19,7 @@ class CodeGenTest extends AnyFunSpec with Matchers {
           |        println("Something")
           |
         """.stripMargin.replace("\r", "")
-      val ast: Module = TestUtil.parse(code, StatementParser.moduleParser).asInstanceOf[Module]
+    /*  val ast: Module = // TestUtil.parse(code, StatementParser.moduleParser).asInstanceOf[Module]
 
       println(ast)
       // Process AST
@@ -31,7 +28,7 @@ class CodeGenTest extends AnyFunSpec with Matchers {
       println(modelIRs)
 
       val compiledCode = modelIRs.map(CodeGen.genModelCode)
-      println(compiledCode)
+      println(compiledCode)*/
 
 
     }

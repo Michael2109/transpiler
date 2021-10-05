@@ -1,64 +1,66 @@
 package transpiler.parser
 
-import fastparse.noApi._
-import transpiler.parser.WsApi._
+import fastparse.ScalaWhitespace._
+import fastparse._
 import transpiler.parser.ast.AST._
 
-object StatementParser extends Statements(0)
+object StatementParser {
 
-class Statements(indent: Int) {
+  def accessModifier[_: P]: P[Modifier] = P("protected").map(_ => Protected()) | P("private").map(_ => Private()) | P("local").map(_ => PackageLocal())
 
-  val space = P(CharIn(" \n"))
-  val NEWLINE: P0 = P("\n" | "\r\n" | End)
-  val ENDMARKER: P0 = P(End)
-  val indents = P(NEWLINE ~~ " ".repX(indent))
-  val spaces = P((LexicalParser.nonewlinewscomment.? ~~ "\n").repX(1))
-  val space_indents = P(spaces.repX ~~ " ".repX(indent))
+  def annotationParser[_: P]: P[Annotation] = P("@" ~ ExpressionParser.nameParser).map(Annotation)
 
-  val assignParser: P[Assign] = P(LexicalParser.kw("let") ~ ("mutable").!.? ~ ExpressionParser.nameParser ~ (":" ~ ExpressionParser.typeRefParser).? ~/ P(LexicalParser.kw("=")) ~ blockParser).map(x => Assign(x._2, x._3, x._1.isEmpty, x._4))
+  def modifiers[_: P]: P[Seq[Modifier]] = P(accessModifier | ExpressionParser.typeModifier).rep
 
-  val blockParser: P[Block] = P(doBlock | ExpressionParser.expressionParser.map(Inline))
+  def NEWLINE[_: P]: P0 = P("\n" | "\r\n" | End)
 
-  val commentParser: P[_] = P(LexicalParser.comment)
+  def ENDMARKER[_: P]: P0 = P(End)
 
-  val doBlock: P[Block] = P(LexicalParser.kw(":") ~~ indentedBlock).map(x => DoBlock(x))
+  def assignParser[_: P]: P[Assign] = P("let" ~ ("mutable").!.? ~ ExpressionParser.nameParser ~ (":" ~ ExpressionParser.typeRefParser).? ~/ P("=") ~ blockParser).map(x => Assign(x._2, x._3, x._1.isEmpty, x._4))
 
-  val exprAsStmt: P[Statement] = P(ExpressionParser.expressionParser).map(ExprAsStmt)
+  def blockParser[_: P]: P[Block] = P(curlyBracketsBlock | ExpressionParser.expressionParser.map(Inline))
 
-  val ifStatementParser: P[If] = {
-    def ifParser: P[(Expression, Statement)] = P(LexicalParser.kw("if") ~/ ExpressionParser.expressionParser ~ blockParser).map(x => (x._1, x._2))
+  def exprAsStmt[_: P]: P[Statement] = P(ExpressionParser.expressionParser).map(ExprAsStmt)
+
+  def ifStatementParser[_: P]: P[If] = {
+    val ifParser: P[(Expression, Statement)] = P("if" ~/ ExpressionParser.expressionParser ~ blockParser).map(x => (x._1, x._2))
+
+    val elifP: P[(Expression, Statement)] = P("elif" ~/ ExpressionParser.expressionParser ~ blockParser).map(x => (x._1, x._2))
+
+    val elseP: P[Statement] = P("else" ~/ blockParser).map(x => x)
 
     def elseParser: P[Statement] = P(elifP ~ elseParser.?).map(x => If(x._1, x._2, x._3)) | P(elseP)
 
-    def elifP: P[(Expression, Statement)] = P(LexicalParser.kw("elif") ~/ ExpressionParser.expressionParser ~ blockParser).map(x => (x._1, x._2))
-
-    def elseP: P[Statement] = P(LexicalParser.kw("else") ~/ blockParser).map(x => x)
 
     P(ifParser ~ elseParser.?).map(x => If(x._1, x._2, x._3))
   }
 
-  val forLoopParser: P[For] = {
-    val forParser = P(LexicalParser.kw("for") ~/ ExpressionParser.identifierParser ~ P(LexicalParser.kw("in")) ~ ExpressionParser.expressionParser ~ blockParser).map(x => (x._1, x._2, x._3))
-    P(forParser).map(x => For(x._1, x._2 ,x._3))
+  def forLoopParser[_: P]: P[For] = {
+    val forParser = P("for" ~/ ExpressionParser.identifierParser ~ P("in") ~ ExpressionParser.expressionParser ~ blockParser).map(x => (x._1, x._2, x._3))
+    P(forParser).map(x => For(x._1, x._2, x._3))
   }
 
-  val importParser: P[Import] = P(LexicalParser.kw("import") ~/ ExpressionParser.nameParser.rep(sep = ".")).map(Import)
+  def importParser[_: P]: P[Import] = P("import" ~/ ExpressionParser.nameParser.rep(sep = ".")).map(Import)
 
-  val fieldParser: P[Field] = P(ExpressionParser.nameParser ~ ":" ~ ExpressionParser.typeRefParser).map(x => Field(x._1, x._2, None))
+  def fieldParser[_: P]: P[Field] = P(ExpressionParser.nameParser ~ ":" ~ ExpressionParser.typeRefParser).map(x => Field(x._1, x._2, None))
 
-  val methodParser: P[Statement] = P(ExpressionParser.modifiers ~ LexicalParser.kw("let") ~ ExpressionParser.nameParser ~ "(" ~/ fieldParser.rep(sep = ",") ~ ")" ~ (ExpressionParser.typeRefParser).? ~ blockParser).map(x => Method(x._2, Seq(), x._3, x._1, x._4, x._5))
+  def methodParser[_: P]: P[Statement] = P(modifiers ~ "let" ~ ExpressionParser.nameParser ~ "(" ~/ fieldParser.rep(sep = ",") ~ ")" ~ (ExpressionParser.typeRefParser).? ~ blockParser).map(x => Method(x._2, Seq(), x._3, x._1, x._4, x._5))
 
-  val modelParser: P[Model] = P(LexicalParser.kw("class") ~/ ExpressionParser.nameParser ~ ("extends" ~ ExpressionParser.typeRefParser).? ~ (LexicalParser.kw("with") ~ ExpressionParser.typeRefParser).rep() ~~ indentedBlock).map(x => ClassModel(x._1, Seq(), Seq(), x._2, Seq(), x._3, x._4))
+  def modelParser[_: P]: P[Model] = P("class" ~/ ExpressionParser.nameParser ~ ("extends" ~ ExpressionParser.typeRefParser).? ~ ("with" ~ ExpressionParser.typeRefParser).rep() ~~ curlyBracketsBlock).map(x => ClassModel(x._1, Seq(), Seq(), x._2, Seq(), x._3, x._4.statement))
 
-  val moduleParser: P[Module] = P(nameSpaceParser ~ importParser.rep ~ modelParser.rep).map(x => Module(ModuleHeader(x._1, x._2), x._3))
+  def moduleParser[_: P]: P[Module] = P(nameSpaceParser ~ importParser.rep ~ modelParser.rep).map(x => Module(ModuleHeader(x._1, x._2), x._3))
 
-  val nameSpaceParser: P[NameSpace] = P(LexicalParser.kw("package") ~/ ExpressionParser.nameParser.rep(sep = ".")).map(NameSpace)
+  def nameSpaceParser[_: P]: P[NameSpace] = P("package" ~/ ExpressionParser.nameParser.rep(sep = ".")).map(NameSpace)
 
-  val reassignParser: P[Reassign] = P(ExpressionParser.nameParser ~ "<-" ~/ blockParser).map(x => Reassign(x._1, x._2))
+  def reassignParser[_: P]: P[Reassign] = P(ExpressionParser.nameParser ~ "<-" ~/ blockParser).map(x => Reassign(x._1, x._2))
 
-  val statementParser: P[Statement] = P(!commentParser ~ (modelParser | ifStatementParser | forLoopParser | methodParser | assignParser | reassignParser | exprAsStmt))
+  def statementParser[_: P]: P[Statement] = P(modelParser | ifStatementParser | forLoopParser | methodParser | assignParser | reassignParser | exprAsStmt)
 
-  val indentedBlock: P[Seq[Statement]] = {
+  def curlyBracketsBlock[_: P]: P[BraceBlock] = {
+
+    P( "{" ~ LexicalParser.Newline.? ~ componentValue.rep  ~  "}" ).map(x => BraceBlock(x.filter(_.isDefined).map(_.get)))
+    /*
+
     val deeper: P[Int] = {
       val commentLine = P("\n" ~~ LexicalParser.nonewlinewscomment.?.map(_ => 0)).map((_, Some("")))
       val endLine = P("\n" ~~ (" " | "\t").repX(indent + 1).!.map(_.length) ~~ LexicalParser.comment.!.?)
@@ -69,6 +71,12 @@ class Statements(indent: Int) {
     val indented: P[Seq[Statement]] = P(deeper.flatMap { nextIndent =>
       new Statements(nextIndent).statementParser.repX(1, spaces.repX(1) ~~ (" " * nextIndent | "\t" * nextIndent)).map(x => x)
     })
-    (indented | (" ".rep ~ statementParser.rep(min = 1, max = 1)))
+    (indented | (" ".rep ~ statementParser.rep(min = 1, max = 1)))*/
+  }
+
+
+  def componentValue[_: P]: P[Option[Statement]] = {
+  //  def blockOpt = P( curlyBracketsBlock  ).map(Some(_))
+    P( statementParser.map(Some(_)) |  LexicalParser.Newline.map(_ => None) )
   }
 }
