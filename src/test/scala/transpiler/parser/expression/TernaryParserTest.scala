@@ -11,7 +11,8 @@ class TernaryParserTest extends AnyFunSpec with Matchers {
   describe("Ternary parser") {
     it("Should parse ternary") {
 
-      val Parsed.Success(value, _) = parse("if (true) 1 else 2", ExpressionParser.expressionParser(_))
+      // todo include ternary
+      val Parsed.Success(value, _) = parse("true ? 1 : 2", ExpressionParser.ternaryParser(_))
       value shouldBe Ternary(BoolConst(true),IntConst(1),IntConst(2))
     }
   }

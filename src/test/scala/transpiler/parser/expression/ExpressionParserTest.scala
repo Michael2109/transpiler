@@ -13,7 +13,7 @@ class ExpressionParserTest extends AnyFunSpec with Matchers {
   describe("Nested expression call parser test") {
     it("Should parse nested expression calls") {
       val Parsed.Success(value, _) = parse("x.toString()", ExpressionParser.expressionParser(_))
-      value shouldBe NestedExpr(ArrayBuffer(Identifier(Name("x")), MethodCall(Name("toString"), ArrayBuffer(BlockExpr(ArrayBuffer())))))
+      value shouldBe NestedExpr(ArrayBuffer(Identifier(Name("x")), MethodCall(Name("toString"), ArrayBuffer())))
     }
   }
 

@@ -23,7 +23,7 @@ class ReassignParserTest extends AnyFunSpec with Matchers {
           |  2
           |  3
         """.stripMargin.replace("\r", "")
-      // TestUtil.parse(code, StatementParser.statementParser) shouldBe Reassign(Name("x"), BraceBlock(ArrayBuffer(ExprAsStmt(IntConst(1)), ExprAsStmt(IntConst(2)), ExprAsStmt(IntConst(3)))))
+      // TestUtil.parse(code, StatementParser.statementParser) shouldBe Reassign(Name("x"), CurlyBracketsBlock(ArrayBuffer(ExprAsStmt(IntConst(1)), ExprAsStmt(IntConst(2)), ExprAsStmt(IntConst(3)))))
     }
   }
 }

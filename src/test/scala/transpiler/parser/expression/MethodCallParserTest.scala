@@ -14,7 +14,7 @@ class MethodCallParserTest extends AnyFunSpec with Matchers {
   describe("Method call parser test") {
     it("Should parse method calls - No arguments") {
       val Parsed.Success(value, _) = parse("println()", ExpressionParser.expressionParser(_))
-      value shouldBe MethodCall(Name("println"), ArrayBuffer(BlockExpr(List())))
+      value shouldBe MethodCall(Name("println"), ArrayBuffer())
     }
     it("Should parse method calls - Single argument") {
       val Parsed.Success(value, _) = parse("methodCall(a)", ExpressionParser.methodCallParser(_))
@@ -27,7 +27,7 @@ class MethodCallParserTest extends AnyFunSpec with Matchers {
 
     it("Should parse method calls - New class instance") {
       val Parsed.Success(value, _) = parse("methodCall(new ClassName())", ExpressionParser.expressionParser(_))
-      value shouldBe MethodCall(Name("methodCall"), ArrayBuffer(NewClassInstance(Type(RefLocal(Name("ClassName"))), ArrayBuffer(BlockExpr(List())), None)))
+      value shouldBe MethodCall(Name("methodCall"), ArrayBuffer(NewClassInstance(Type(RefLocal(Name("ClassName"))), ArrayBuffer(), None)))
     }
   }
 }

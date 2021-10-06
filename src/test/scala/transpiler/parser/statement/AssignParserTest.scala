@@ -33,7 +33,7 @@ class AssignParserTest extends AnyFunSpec with Matchers {
           |  1
           |  2
         """.stripMargin.replace("\r", "")
-      // TestUtil.parse(code, StatementParser.statementParser) shouldBe Assign(Name("x"), None, true, BraceBlock(ArrayBuffer(ExprAsStmt(IntConst(1)), ExprAsStmt(IntConst(2)))))
+      // TestUtil.parse(code, StatementParser.statementParser) shouldBe Assign(Name("x"), None, true, CurlyBracketsBlock(ArrayBuffer(ExprAsStmt(IntConst(1)), ExprAsStmt(IntConst(2)))))
     }
   }
 

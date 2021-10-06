@@ -27,7 +27,7 @@ object ExpressionParser {
 
   def parens[_: P]: P[Expression] = P("(" ~/ addSub ~ ")")
 
-  def factor[_: P]: P[Expression] = methodCallParser | newClassInstanceParser | ternaryParser | numberParser | booleanParser | identifierParser | stringLiteral | parens
+  def factor[_: P]: P[Expression] = methodCallParser | newClassInstanceParser | numberParser | booleanParser | identifierParser | stringLiteral | parens
 
   def divMul[_: P]: P[Expression] = P(factor ~ (CharIn("*/").! ~/ factor).rep).map(chain _ tupled)
 
@@ -82,7 +82,7 @@ object ExpressionParser {
 
   def stringLiteral[_: P]: P[StringLiteral] = LexicalParser.stringLiteral.map(x => StringLiteral(x))
 
-  def ternaryParser[_: P]: P[Ternary] = P("if" ~/ "(" ~ expressionParser ~ ")" ~ expressionParser ~ "else" ~ expressionParser).map(x => Ternary(x._1, x._2, x._3))
+  def ternaryParser[_: P]: P[Ternary] = P(expressionParser ~ "?" ~ expressionParser ~ ":" ~ expressionParser).map(x => Ternary(x._1, x._2, x._3))
 
   def typeModifier[_: P]: P[Modifier] = P("mutable").map(_ => Final()) | P("abstract").map(_ => Abstract()) | P("pure").map(_ => Pure())
 

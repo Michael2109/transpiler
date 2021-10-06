@@ -13,7 +13,7 @@ class NewClassInstanceParserTest extends AnyFunSpec with Matchers {
   describe("New class instance parser") {
     it("Should parse new class instances") {
       val Parsed.Success(value, _) = parse("new ClassName()", ExpressionParser.expressionParser(_))
-     value shouldBe NewClassInstance(Type(RefLocal(Name("ClassName"))), ArrayBuffer(BlockExpr(List())), None)
+     value shouldBe NewClassInstance(Type(RefLocal(Name("ClassName"))), ArrayBuffer(), None)
     }
   }
 }

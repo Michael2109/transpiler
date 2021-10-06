@@ -25,7 +25,7 @@ class MethodParserTest extends AnyFunSpec with Matchers {
         """let exampleMethod(): Int = do
           |  1
         """.stripMargin.replace("\r", "")
-      // TestUtil.parse(code, StatementParser.statementParser) shouldBe Method(Name("exampleMethod"), List(), ArrayBuffer(), List(), Some(Type(RefLocal(Name("Int")))), BraceBlock(ArrayBuffer(ExprAsStmt(IntConst(1)))))
+      // TestUtil.parse(code, StatementParser.statementParser) shouldBe Method(Name("exampleMethod"), List(), ArrayBuffer(), List(), Some(Type(RefLocal(Name("Int")))), CurlyBracketsBlock(ArrayBuffer(ExprAsStmt(IntConst(1)))))
     }
 
     it("Should parse method definitions with nested methods") {
@@ -35,7 +35,7 @@ class MethodParserTest extends AnyFunSpec with Matchers {
           |    i
           |  j
         """.stripMargin.replace("\r", "")
-      // TestUtil.parse(code, StatementParser.statementParser) shouldBe Method(Name("outerMethod"), List(), ArrayBuffer(), ArrayBuffer(), Some(Type(RefLocal(Name("Int")))), BraceBlock(ArrayBuffer(Method(Name("innerMethod"), List(), ArrayBuffer(), ArrayBuffer(), Some(Type(RefLocal(Name("Int")))), BraceBlock(ArrayBuffer(ExprAsStmt(Identifier(Name("i")))))), ExprAsStmt(Identifier(Name("j"))))))
+      // TestUtil.parse(code, StatementParser.statementParser) shouldBe Method(Name("outerMethod"), List(), ArrayBuffer(), ArrayBuffer(), Some(Type(RefLocal(Name("Int")))), CurlyBracketsBlock(ArrayBuffer(Method(Name("innerMethod"), List(), ArrayBuffer(), ArrayBuffer(), Some(Type(RefLocal(Name("Int")))), CurlyBracketsBlock(ArrayBuffer(ExprAsStmt(Identifier(Name("i")))))), ExprAsStmt(Identifier(Name("j"))))))
     }
 
     it("Should parse method definitions with multiple statements") {
@@ -47,7 +47,7 @@ class MethodParserTest extends AnyFunSpec with Matchers {
           |    2
           |  let y = 10
         """.stripMargin.replace("\r", "")
-      // TestUtil.parse(code, StatementParser.statementParser) shouldBe Method(Name("method"), List(), ArrayBuffer(), ArrayBuffer(), Some(Type(RefLocal(Name("Int")))), BraceBlock(ArrayBuffer(If(Identifier(Name("true")), BraceBlock(ArrayBuffer(ExprAsStmt(IntConst(1)))), Some(Inline(IntConst(2)))), Assign(Name("y"), None, true, Inline(IntConst(10))))))
+      // TestUtil.parse(code, StatementParser.statementParser) shouldBe Method(Name("method"), List(), ArrayBuffer(), ArrayBuffer(), Some(Type(RefLocal(Name("Int")))), CurlyBracketsBlock(ArrayBuffer(If(Identifier(Name("true")), CurlyBracketsBlock(ArrayBuffer(ExprAsStmt(IntConst(1)))), Some(Inline(IntConst(2)))), Assign(Name("y"), None, true, Inline(IntConst(10))))))
     }
 
     it("Should parse method definitions with method calls") {
@@ -56,7 +56,7 @@ class MethodParserTest extends AnyFunSpec with Matchers {
           |  let y = 1
           |  println(y)
         """.stripMargin.replace("\r", "")
-      // TestUtil.parse(code, StatementParser.statementParser) shouldBe Method(Name("method"), List(), ArrayBuffer(), ArrayBuffer(), Some(Type(RefLocal(Name("Int")))), BraceBlock(ArrayBuffer(Assign(Name("y"), None, true, Inline(IntConst(1))), ExprAsStmt(MethodCall(Name("println"), ArrayBuffer(Identifier(Name("y"))))))))
+      // TestUtil.parse(code, StatementParser.statementParser) shouldBe Method(Name("method"), List(), ArrayBuffer(), ArrayBuffer(), Some(Type(RefLocal(Name("Int")))), CurlyBracketsBlock(ArrayBuffer(Assign(Name("y"), None, true, Inline(IntConst(1))), ExprAsStmt(MethodCall(Name("println"), ArrayBuffer(Identifier(Name("y"))))))))
     }
 
     it("Should parse method definitions with modifiers") {

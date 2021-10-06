@@ -19,7 +19,7 @@ class ModelParserTest extends AnyFunSpec with Matchers {
           |  let exampleMethod(): Int = do
           |    1
         """.stripMargin.replace("\r", "")
-      // TestUtil.parse(code, StatementParser.statementParser) shouldBe ClassModel(Name("Test"), List(), List(), None, List(), ArrayBuffer(), ArrayBuffer(Assign(Name("x"), None, true, Inline(IntConst(10))), Method(Name("exampleMethod"), List(), ArrayBuffer(), ArrayBuffer(), Some(Type(RefLocal(Name("Int")))), BraceBlock(ArrayBuffer(ExprAsStmt(IntConst(1)))))))
+      // TestUtil.parse(code, StatementParser.statementParser) shouldBe ClassModel(Name("Test"), List(), List(), None, List(), ArrayBuffer(), ArrayBuffer(Assign(Name("x"), None, true, Inline(IntConst(10))), Method(Name("exampleMethod"), List(), ArrayBuffer(), ArrayBuffer(), Some(Type(RefLocal(Name("Int")))), CurlyBracketsBlock(ArrayBuffer(ExprAsStmt(IntConst(1)))))))
     }
 
     it("Should parse a model that extends a parent") {

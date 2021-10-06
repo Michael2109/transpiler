@@ -1,6 +1,6 @@
 package transpiler.parser.ast
 
-import transpiler.parser.ast.AST.{Abstract, Assign, Block, ClassModel, BraceBlock, ExprAsStmt, Expression, Final, For, Identifier, If, Inline, IntConst, Method, Module, PackageLocal, Private, Protected, Public, Pure, RBinary, RefLocal, RefQual, Statement}
+import transpiler.parser.ast.AST.{Abstract, Assign, Block, ClassModel, CurlyBracketsBlock, ExprAsStmt, Expression, Final, For, Identifier, If, Inline, IntConst, Method, Module, PackageLocal, Private, Protected, Public, Pure, RBinary, RefLocal, RefQual, Statement}
 import transpiler.symbol_table.{ClassEntry, SymbolTable}
 
 import scala.collection.mutable.ListBuffer
@@ -81,7 +81,7 @@ object AST2IR {
   def blockToIR(block: Block, symbolTable: SymbolTable, imports: Map[String, String]): BlockIR = {
     block match {
       case inline: Inline => inlineToIR(inline, symbolTable, imports)
-      case doBlock: BraceBlock => doBlockToIR(doBlock, symbolTable, imports)
+      case doBlock: CurlyBracketsBlock => doBlockToIR(doBlock, symbolTable, imports)
     }
 
   }
@@ -91,7 +91,7 @@ object AST2IR {
     InlineIR(expressionIR)
   }
 
-  def doBlockToIR(doBlock: BraceBlock, symbolTable: SymbolTable, imports: Map[String, String]): DoBlockIR = {
+  def doBlockToIR(doBlock: CurlyBracketsBlock, symbolTable: SymbolTable, imports: Map[String, String]): DoBlockIR = {
     val statements = doBlock.statement.map(statement => {
       statementToIR(statement, symbolTable, imports)
     }).toList
@@ -122,7 +122,7 @@ object AST2IR {
       case Assign(name, _, immutable, block) => AssignIR(name.value, immutable, blockToIR(block, symbolTable, imports))
       case For(identifier, expression, block) => ForIR(identifierToIR(identifier, symbolTable, imports), expressionToIR(expression, symbolTable, imports), blockToIR(block, symbolTable, imports))
       case ifStatement: If => ifToIR(ifStatement, symbolTable, imports)
-      case doBlock: BraceBlock => doBlockToIR(doBlock, symbolTable, imports)
+      case doBlock: CurlyBracketsBlock => doBlockToIR(doBlock, symbolTable, imports)
       case exprAsStmt: ExprAsStmt => ExprAsStmtIR(expressionToIR(exprAsStmt.expression, symbolTable, imports))
     }
   }
