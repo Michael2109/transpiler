@@ -1,11 +1,11 @@
 package transpiler.parser.statement
 
+import fastparse.{Parsed, parse}
 import org.scalatest.funspec.AnyFunSpec
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
 import transpiler.parser.StatementParser
 import transpiler.parser.ast.AST._
-
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -14,12 +14,15 @@ class ModelParserTest extends AnyFunSpec with Matchers {
   describe("Model parser") {
     it("Should parse a model with no fields") {
       val code =
-        """class Test
+        """class Test {
           |  let x = 10
-          |  let exampleMethod(): Int = do
+          |  let exampleMethod() Int = {
           |    1
+          |  }
+          |}
         """.stripMargin.replace("\r", "")
-      // TestUtil.parse(code, StatementParser.statementParser) shouldBe ClassModel(Name("Test"), List(), List(), None, List(), ArrayBuffer(), ArrayBuffer(Assign(Name("x"), None, true, Inline(IntConst(10))), Method(Name("exampleMethod"), List(), ArrayBuffer(), ArrayBuffer(), Some(Type(RefLocal(Name("Int")))), CurlyBracketsBlock(ArrayBuffer(ExprAsStmt(IntConst(1)))))))
+      val Parsed.Success(value, _) = parse(code, StatementParser.statementParser(_))
+     value shouldBe ClassModel(Name("Test"), List(), List(), None, List(), ArrayBuffer(), ArrayBuffer(Assign(Name("x"), None, true, Inline(IntConst(10))), Method(Name("exampleMethod"), List(), ArrayBuffer(), ArrayBuffer(), Some(Type(RefLocal(Name("Int")))), CurlyBracketsBlock(ArrayBuffer(ExprAsStmt(IntConst(1)))))))
     }
 
     it("Should parse a model that extends a parent") {
