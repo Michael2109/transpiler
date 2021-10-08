@@ -19,7 +19,7 @@ class CodeGenTest extends AnyFunSpec with Matchers {
           |        println("Something")
           |
         """.stripMargin.replace("\r", "")
-    /*  val ast: Module = // TestUtil.parse(code, StatementParser.moduleParser).asInstanceOf[Module]
+    /*  val ast: Module = // TestUtil.parse(code, StatementParser.fileParser).asInstanceOf[Module]
 
       println(ast)
       // Process AST

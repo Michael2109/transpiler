@@ -10,28 +10,28 @@ import transpiler.parser.ast.AST._
 import scala.collection.mutable.ArrayBuffer
 
 
-class ModuleParserTest extends AnyFunSpec with Matchers {
-  describe("Module parser") {
+class FileParserTest extends AnyFunSpec with Matchers {
+  describe("File parser") {
 
-    it("Should parse a module - No imports") {
+    it("Should parse a file - No imports") {
       val code =
         """package a.b.c
         """.stripMargin.replace("\r", "")
-      val Parsed.Success(value, _) = parse(code, StatementParser.moduleParser(_))
+      val Parsed.Success(value, _) = parse(code, StatementParser.fileParser(_))
       value shouldBe Module(ModuleHeader(Package(ArrayBuffer(Name("a"), Name("b"), Name("c"))),ArrayBuffer()),ArrayBuffer())
     }
 
-    it("Should parse a module - No classes") {
+    it("Should parse a file - No classes") {
       val code =
         """package a.b.c
           |
           |import x.y.z
         """.stripMargin.replace("\r", "")
-      val Parsed.Success(value, _) = parse(code, StatementParser.moduleParser(_))
+      val Parsed.Success(value, _) = parse(code, StatementParser.fileParser(_))
       value shouldBe Module(ModuleHeader(Package(ArrayBuffer(Name("a"), Name("b"), Name("c"))),ArrayBuffer(Import(ArrayBuffer(Name("x"), Name("y"), Name("z"))))),ArrayBuffer())
     }
 
-    it("Should parse a module - One class") {
+    it("Should parse a file - One class") {
       val code =
         """package a.b.c
           |
@@ -41,11 +41,11 @@ class ModuleParserTest extends AnyFunSpec with Matchers {
           |
           |}
         """.stripMargin.replace("\r", "")
-      val Parsed.Success(value, _) = parse(code, StatementParser.moduleParser(_))
+      val Parsed.Success(value, _) = parse(code, StatementParser.fileParser(_))
       value shouldBe Module(ModuleHeader(Package(ArrayBuffer(Name("a"), Name("b"), Name("c"))),ArrayBuffer(Import(ArrayBuffer(Name("x"), Name("y"), Name("z"))))),ArrayBuffer(Model(ClassModelType,Name("A"),List(),List(),None,List(),ArrayBuffer(),ArrayBuffer())))
     }
 
-    it("Should parse a module - Multiple classes") {
+    it("Should parse a file - Multiple classes") {
       val code =
         """package a.b.c
           |
@@ -55,11 +55,11 @@ class ModuleParserTest extends AnyFunSpec with Matchers {
           |class B {}
           |class C {}
         """.stripMargin.replace("\r", "")
-      val Parsed.Success(value, _) = parse(code, StatementParser.moduleParser(_))
+      val Parsed.Success(value, _) = parse(code, StatementParser.fileParser(_))
       value shouldBe Module(ModuleHeader(Package(ArrayBuffer(Name("a"), Name("b"), Name("c"))),ArrayBuffer(Import(ArrayBuffer(Name("x"), Name("y"), Name("z"))))),ArrayBuffer(Model(ClassModelType,Name("A"),List(),List(),None,List(),ArrayBuffer(),ArrayBuffer()),Model(ClassModelType,Name("B"),List(),List(),None,List(),ArrayBuffer(),ArrayBuffer()),Model(ClassModelType,Name("C"),List(),List(),None,List(),ArrayBuffer(),ArrayBuffer())))
     }
 
-    it("Should parse a module - class with nested content") {
+    it("Should parse a file - class with nested content") {
       val code =
         """package a.b.c
           |
@@ -72,7 +72,7 @@ class ModuleParserTest extends AnyFunSpec with Matchers {
           |  }
           |}
         """.stripMargin.replace("\r", "")
-      val Parsed.Success(value, _) = parse(code, StatementParser.moduleParser(_))
+      val Parsed.Success(value, _) = parse(code, StatementParser.fileParser(_))
       value shouldBe Module(ModuleHeader(Package(ArrayBuffer(Name("a"), Name("b"), Name("c"))),ArrayBuffer(Import(ArrayBuffer(Name("x"), Name("y"), Name("z"))))),ArrayBuffer(Model(ClassModelType,Name("Test"),List(),List(),None,List(),ArrayBuffer(),ArrayBuffer(Assign(Name("x"),None,true,Inline(IntConst(10))), Method(Name("exampleMethod"),List(),ArrayBuffer(),ArrayBuffer(),Some(Type(RefLocal(Name("Int")))),CurlyBracketsBlock(ArrayBuffer(ExprAsStmt(IntConst(1)))))))))
     }
   }

@@ -49,7 +49,7 @@ object StatementParser {
 
   def modelParser[_: P]: P[Model] = P(modelTypeParser ~/ ExpressionParser.nameParser ~ ("extends" ~ ExpressionParser.typeRefParser).? ~ ("with" ~ ExpressionParser.typeRefParser).rep() ~ curlyBracketsBlock).map(x => Model(x._1, x._2, Seq(), Seq(), x._3, Seq(), x._4, x._5.statement))
 
-  def moduleParser[_: P]: P[Module] = P(packageParser ~ importParser.rep ~ modelParser.rep).map(x => Module(ModuleHeader(x._1, x._2), x._3))
+  def fileParser[_: P]: P[Module] = P(packageParser ~ importParser.rep ~ modelParser.rep).map(x => Module(ModuleHeader(x._1, x._2), x._3))
 
   def packageParser[_: P]: P[Package] = P("package" ~/ ExpressionParser.nameParser.rep(sep = ".")).map(Package)
 
