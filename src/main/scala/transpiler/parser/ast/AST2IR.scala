@@ -1,6 +1,6 @@
 package transpiler.parser.ast
 
-import transpiler.parser.ast.AST.{Abstract, Assign, Block, ClassModel, CurlyBracketsBlock, ExprAsStmt, Expression, Final, For, Identifier, If, Inline, IntConst, Method, Module, PackageLocal, Private, Protected, Public, Pure, RBinary, RefLocal, RefQual, Statement}
+import transpiler.parser.ast.AST.{Abstract, Assign, Block, CurlyBracketsBlock, ExprAsStmt, Expression, Final, For, Identifier, If, Inline, IntConst, Method, Module, PackageLocal, Private, Protected, Public, Pure, RBinary, RefLocal, RefQual, Statement}
 import transpiler.symbol_table.{ClassEntry, SymbolTable}
 
 import scala.collection.mutable.ListBuffer
@@ -8,39 +8,39 @@ import scala.collection.mutable.ListBuffer
 object AST2IR {
 
   def astToIR(module: Module): Seq[ModelIR] = {
-    module.models.map(model => model match {
-      case classModel: ClassModel => {
+    module.models.map(model => {
 
-        val imports: Map[String, String] = module.header.imports.map(i => i.loc.last.value -> i.loc.map(_.value).mkString("/")).toMap[String, String]
 
-        val superClass: String = classModel.parent match {
-          case Some(value) => value.ref match {
-            case RefLocal(name) => imports.get(name.value).get
-            case RefQual(qualName) => qualName.nameSpace.nameSpace.map(_.value).mkString("/") + "/" + qualName.name.value
-          }
-          case None => "java/lang/Object"
+      val imports: Map[String, String] = module.header.imports.map(i => i.loc.last.value -> i.loc.map(_.value).mkString("/")).toMap[String, String]
+
+      val superClass: String = model.parent match {
+        case Some(value) => value.ref match {
+          case RefLocal(name) => imports.get(name.value).get
+          case RefQual(qualName) => qualName.nameSpace.nameSpace.map(_.value).mkString("/") + "/" + qualName.name.value
         }
-
-        val interfaces: Array[String] = classModel.interfaces.map(i => {
-          i.ref match {
-            case refLocal: RefLocal => imports(refLocal.name.value)
-            case refQual: RefQual => refQual.qualName.nameSpace.nameSpace.map(_.value).mkString("/") + "/" + refQual.qualName.name.value
-          }
-        }).toArray
-
-        val classModelIR = ClassModelIR(module.header.nameSpace.nameSpace.map(_.value).mkString("/"), classModel.name.value, superClass)
-
-        // classModelIR.externalStatements += Visit(Opcodes.V1_8, Opcodes.ACC_PUBLIC | Opcodes.ACC_SUPER, module.header.nameSpace.nameSpace.map(_.value).mkString("/") + "/" + classModel.name.value, null, superClass, interfaces)
-
-        val classSymbolTable: SymbolTable = new ClassEntry("")
-        classModel.body.foreach(s => {
-          convertToIR(s, classModelIR, classSymbolTable, imports)
-        })
-
-        addConstructor(classModelIR, superClass)
-        classModelIR
+        case None => "java/lang/Object"
       }
+
+      val interfaces: Array[String] = model.interfaces.map(i => {
+        i.ref match {
+          case refLocal: RefLocal => imports(refLocal.name.value)
+          case refQual: RefQual => refQual.qualName.nameSpace.nameSpace.map(_.value).mkString("/") + "/" + refQual.qualName.name.value
+        }
+      }).toArray
+
+      val classModelIR = ClassModelIR(module.header.nameSpace.nameSpace.map(_.value).mkString("/"), model.name.value, superClass)
+
+      // classModelIR.externalStatements += Visit(Opcodes.V1_8, Opcodes.ACC_PUBLIC | Opcodes.ACC_SUPER, module.header.nameSpace.nameSpace.map(_.value).mkString("/") + "/" + classModel.name.value, null, superClass, interfaces)
+
+      val classSymbolTable: SymbolTable = new ClassEntry("")
+      model.body.foreach(s => {
+        convertToIR(s, classModelIR, classSymbolTable, imports)
+      })
+
+      addConstructor(classModelIR, superClass)
+      classModelIR
     })
+
   }
 
   def addConstructor(model: ClassModelIR, superClass: String): Unit = {

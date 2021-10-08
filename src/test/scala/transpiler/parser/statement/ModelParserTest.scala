@@ -22,7 +22,7 @@ class ModelParserTest extends AnyFunSpec with Matchers {
           |}
         """.stripMargin.replace("\r", "")
       val Parsed.Success(value, _) = parse(code, StatementParser.statementParser(_))
-     value shouldBe ClassModel(Name("Test"), List(), List(), None, List(), ArrayBuffer(), ArrayBuffer(Assign(Name("x"), None, true, Inline(IntConst(10))), Method(Name("exampleMethod"), List(), ArrayBuffer(), ArrayBuffer(), Some(Type(RefLocal(Name("Int")))), CurlyBracketsBlock(ArrayBuffer(ExprAsStmt(IntConst(1)))))))
+     value shouldBe Model(ClassModelType, Name("Test"), List(), List(), None, List(), ArrayBuffer(), ArrayBuffer(Assign(Name("x"), None, true, Inline(IntConst(10))), Method(Name("exampleMethod"), List(), ArrayBuffer(), ArrayBuffer(), Some(Type(RefLocal(Name("Int")))), CurlyBracketsBlock(ArrayBuffer(ExprAsStmt(IntConst(1)))))))
     }
 
     it("Should parse a model that extends a parent") {
@@ -32,7 +32,7 @@ class ModelParserTest extends AnyFunSpec with Matchers {
           |}
         """.stripMargin.replace("\r", "")
       val Parsed.Success(value, _) = parse(code, StatementParser.statementParser(_))
-     value shouldBe ClassModel(Name("Test"),List(),List(),Some(Type(RefLocal(Name("ParentClass")))),List(),ArrayBuffer(),ArrayBuffer(Method(Name("exampleMethod"),List(),ArrayBuffer(),ArrayBuffer(),Some(Type(RefLocal(Name("Int")))),CurlyBracketsBlock(ArrayBuffer(ExprAsStmt(IntConst(1)))))))
+     value shouldBe Model(ClassModelType, Name("Test"),List(),List(),Some(Type(RefLocal(Name("ParentClass")))),List(),ArrayBuffer(),ArrayBuffer(Method(Name("exampleMethod"),List(),ArrayBuffer(),ArrayBuffer(),Some(Type(RefLocal(Name("Int")))),CurlyBracketsBlock(ArrayBuffer(ExprAsStmt(IntConst(1)))))))
     }
 
     it("Should parse a model that extends a parent and implements a trait") {
@@ -42,7 +42,7 @@ class ModelParserTest extends AnyFunSpec with Matchers {
           |}
         """.stripMargin.replace("\r", "")
       val Parsed.Success(value, _) = parse(code, StatementParser.statementParser(_))
-     value shouldBe ClassModel(Name("Test"),List(),List(),Some(Type(RefLocal(Name("ParentClass")))),List(),ArrayBuffer(Type(RefLocal(Name("Trait")))),ArrayBuffer(Method(Name("exampleMethod"),List(),ArrayBuffer(),ArrayBuffer(),Some(Type(RefLocal(Name("Int")))),CurlyBracketsBlock(ArrayBuffer(ExprAsStmt(IntConst(1)))))))
+     value shouldBe Model(ClassModelType,Name("Test"),List(),List(),Some(Type(RefLocal(Name("ParentClass")))),List(),ArrayBuffer(Type(RefLocal(Name("Trait")))),ArrayBuffer(Method(Name("exampleMethod"),List(),ArrayBuffer(),ArrayBuffer(),Some(Type(RefLocal(Name("Int")))),CurlyBracketsBlock(ArrayBuffer(ExprAsStmt(IntConst(1)))))))
     }
 
     it("Should parse a model that extends a parent and implements multiple traits") {
@@ -52,7 +52,7 @@ class ModelParserTest extends AnyFunSpec with Matchers {
           |}
         """.stripMargin.replace("\r", "")
       val Parsed.Success(value, _) = parse(code, StatementParser.statementParser(_))
-     value shouldBe ClassModel(Name("Test"),List(),List(),Some(Type(RefLocal(Name("ParentClass")))),List(),ArrayBuffer(Type(RefLocal(Name("Trait1"))), Type(RefLocal(Name("Trait2"))), Type(RefLocal(Name("Trait3")))),ArrayBuffer(Method(Name("exampleMethod"),List(),ArrayBuffer(),ArrayBuffer(),Some(Type(RefLocal(Name("Int")))),CurlyBracketsBlock(ArrayBuffer(ExprAsStmt(IntConst(1)))))))
+     value shouldBe Model(ClassModelType, Name("Test"),List(),List(),Some(Type(RefLocal(Name("ParentClass")))),List(),ArrayBuffer(Type(RefLocal(Name("Trait1"))), Type(RefLocal(Name("Trait2"))), Type(RefLocal(Name("Trait3")))),ArrayBuffer(Method(Name("exampleMethod"),List(),ArrayBuffer(),ArrayBuffer(),Some(Type(RefLocal(Name("Int")))),CurlyBracketsBlock(ArrayBuffer(ExprAsStmt(IntConst(1)))))))
     }
   }
 }

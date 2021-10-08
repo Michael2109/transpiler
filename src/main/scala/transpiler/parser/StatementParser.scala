@@ -12,23 +12,15 @@ object StatementParser {
 
   def modifiers[_: P]: P[Seq[Modifier]] = P(accessModifier | ExpressionParser.typeModifier).rep
 
-  def NEWLINE[_: P]: P0 = P("\n" | "\r\n" | End)
+  def newline[_: P]: P0 = P("\n" | "\r\n" | End)
 
-  def ENDMARKER[_: P]: P0 = P(End)
+  def endMarker[_: P]: P0 = P(End)
 
   def assignParser[_: P]: P[Assign] = P("let" ~ ("mutable").!.? ~ ExpressionParser.nameParser ~ (":" ~ ExpressionParser.typeRefParser).? ~/ P("=") ~ exprAsStmt).map(x => Assign(x._2, x._3, x._1.isEmpty, Inline(x._4.expression)))
 
   def blockParser[_: P]: P[Block] = P(curlyBracketsBlock)
 
   def exprAsStmt[_: P]: P[ExprAsStmt] = P(ExpressionParser.expressionParser).map(ExprAsStmt)
-
-  private def ifParser[_: P]: P[(Expression, Statement)] = P("if" ~/ ExpressionParser.expressionParser ~ blockParser).map(x => (x._1, x._2))
-
-  private  def elifP[_: P]: P[(Expression, Statement)] = P("elif" ~/ ExpressionParser.expressionParser ~ blockParser).map(x => (x._1, x._2))
-
-  private def elseP[_: P]: P[Statement] = P("else" ~/ blockParser)
-
-  private def elseParser[_: P]: P[Statement] = P(elifP ~ elseParser.?).map(x => If(x._1, x._2, x._3)) | P(elseP)
 
   def ifStatementParser[_: P]: P[If] = {
     P(ifParser ~ elseParser.?).map(x => If(x._1, x._2, x._3))
@@ -43,9 +35,17 @@ object StatementParser {
 
   def fieldParser[_: P]: P[Field] = P(ExpressionParser.nameParser ~ ":" ~ ExpressionParser.typeRefParser).map(x => Field(x._1, x._2, None))
 
-  def methodParser[_: P]: P[Statement] = P(modifiers ~ "let" ~ ExpressionParser.nameParser ~ "(" ~/ fieldParser.rep(sep = ",") ~ ")" ~ (ExpressionParser.typeRefParser).? ~ "="~ blockParser).map(x => Method(x._2, Seq(), x._3, x._1, x._4, x._5))
+  def methodParser[_: P]: P[Statement] = P(modifiers ~ "let" ~ ExpressionParser.nameParser ~ "(" ~/ fieldParser.rep(sep = ",") ~ ")" ~ (ExpressionParser.typeRefParser).? ~ "=" ~ blockParser).map(x => Method(x._2, Seq(), x._3, x._1, x._4, x._5))
 
-  def modelParser[_: P]: P[Model] = P("class" ~/ ExpressionParser.nameParser ~ ("extends" ~ ExpressionParser.typeRefParser).? ~ ("with" ~ ExpressionParser.typeRefParser).rep() ~ curlyBracketsBlock).map(x => ClassModel(x._1, Seq(), Seq(), x._2, Seq(), x._3, x._4.statement))
+  def modelTypeParser[_: P]: P[ModelType] = P(classModelTypeParser | traitModelTypeParser | objectModelTypeParser)
+
+  def classModelTypeParser[_: P]: P[ModelType] = P("class").map(_ => ClassModelType)
+
+  def traitModelTypeParser[_: P]: P[ModelType] = P("trait").map(_ => TraitModelType)
+
+  def objectModelTypeParser[_: P]: P[ModelType] = P("object").map(_ => ObjectModelType)
+
+  def modelParser[_: P]: P[Model] = P(modelTypeParser ~/ ExpressionParser.nameParser ~ ("extends" ~ ExpressionParser.typeRefParser).? ~ ("with" ~ ExpressionParser.typeRefParser).rep() ~ curlyBracketsBlock).map(x => Model(x._1, x._2, Seq(), Seq(), x._3, Seq(), x._4, x._5.statement))
 
   def moduleParser[_: P]: P[Module] = P(nameSpaceParser ~ importParser.rep ~ modelParser.rep).map(x => Module(ModuleHeader(x._1, x._2), x._3))
 
@@ -56,26 +56,19 @@ object StatementParser {
   def statementParser[_: P]: P[Statement] = P(modelParser | ifStatementParser | forLoopParser | methodParser | assignParser | reassignParser | exprAsStmt)
 
   def curlyBracketsBlock[_: P]: P[CurlyBracketsBlock] = {
-
-    P( "{" ~/ LexicalParser.Newline.? ~ componentValue.rep  ~  "}" ~ LexicalParser.space ).map(x => CurlyBracketsBlock(x.filter(_.isDefined).map(_.get)))
-    /*
-
-    val deeper: P[Int] = {
-      val commentLine = P("\n" ~~ LexicalParser.nonewlinewscomment.?.map(_ => 0)).map((_, Some("")))
-      val endLine = P("\n" ~~ (" " | "\t").repX(indent + 1).!.map(_.length) ~~ LexicalParser.comment.!.?)
-      P(LexicalParser.nonewlinewscomment.? ~~ (endLine | commentLine).repX(1)).map {
-        _.collectFirst { case (s, None) => s }
-      }.filter(_.isDefined).map(_.get)
-    }
-    val indented: P[Seq[Statement]] = P(deeper.flatMap { nextIndent =>
-      new Statements(nextIndent).statementParser.repX(1, spaces.repX(1) ~~ (" " * nextIndent | "\t" * nextIndent)).map(x => x)
-    })
-    (indented | (" ".rep ~ statementParser.rep(min = 1, max = 1)))*/
+    P("{" ~/ LexicalParser.Newline.? ~ componentValue.rep ~ "}" ~ LexicalParser.space).map(x => CurlyBracketsBlock(x.filter(_.isDefined).map(_.get)))
   }
-
 
   def componentValue[_: P]: P[Option[Statement]] = {
-  //  def blockOpt = P( curlyBracketsBlock  ).map(Some(_))
-    P( statementParser.map(Some(_)) |  LexicalParser.Newline.map(_ => None) )
+    //  def blockOpt = P( curlyBracketsBlock  ).map(Some(_))
+    P(statementParser.map(Some(_)) | LexicalParser.Newline.map(_ => None))
   }
+
+  private def ifParser[_: P]: P[(Expression, Statement)] = P("if" ~/ ExpressionParser.expressionParser ~ blockParser).map(x => (x._1, x._2))
+
+  private def elifP[_: P]: P[(Expression, Statement)] = P("elif" ~/ ExpressionParser.expressionParser ~ blockParser).map(x => (x._1, x._2))
+
+  private def elseP[_: P]: P[Statement] = P("else" ~/ blockParser)
+
+  private def elseParser[_: P]: P[Statement] = P(elifP ~ elseParser.?).map(x => If(x._1, x._2, x._3)) | P(elseP)
 }
