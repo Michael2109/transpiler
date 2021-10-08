@@ -4,7 +4,7 @@ object AST {
 
   case class Module(header: ModuleHeader, models: Seq[Model])
 
-  case class ModuleHeader(nameSpace: NameSpace, imports: Seq[Import])
+  case class ModuleHeader(nameSpace: Package, imports: Seq[Import])
 
   case class Import(loc: Seq[Name])
 
@@ -34,11 +34,11 @@ object AST {
 
   case class Equals() extends TypeRel
 
-  case class NameSpace(nameSpace: Seq[Name])
+  case class Package(nameSpace: Seq[Name])
 
   case class Name(value: String)
 
-  case class QualName(nameSpace: NameSpace, name: Name)
+  case class QualName(nameSpace: Package, name: Name)
 
   case class Annotation(name: Name)
 
@@ -128,7 +128,7 @@ object AST {
 
   case class AssignMultiple(name: Seq[Name], `type`: Option[Type], immutable: Boolean, block: Block) extends Statement
 
-  case class Reassign(name: Name, block: Block) extends Statement
+  case class Reassign(name: Name, exprAsStmt: ExprAsStmt) extends Statement
 
   case class Return() extends Statement
 
