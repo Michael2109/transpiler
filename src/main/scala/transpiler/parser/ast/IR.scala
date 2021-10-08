@@ -1,7 +1,5 @@
 package transpiler.parser.ast
 
-import transpiler.parser.ast.AST.{Expression, Name}
-
 import scala.collection.mutable.ListBuffer
 
 
@@ -35,7 +33,9 @@ case class DoBlockIR(statements: List[StatementIR]) extends BlockIR
 
 trait ExpressionIR
 
-case class MethodCallIR( name: String, expression: Seq[ExpressionIR]) extends ExpressionIR
+case class PrintlnIR( name: String, expressions: Seq[ExpressionIR]) extends ExpressionIR
+
+case class MethodCallIR( name: String, expressions: Seq[ExpressionIR]) extends ExpressionIR
 
 case class DoubleConstIR(value: BigDecimal) extends ExpressionIR
 
@@ -57,7 +57,7 @@ case class AssignIR(id: String, immutable: Boolean, block: BlockIR) extends Stat
 
 case class ExprAsStmtIR(expressionIR: ExpressionIR) extends StatementIR
 
-case class IfStatementIR(condition: ExpressionIR, isStmt: StatementIR, elseStmt: StatementIR) extends StatementIR
+case class IfStatementIR(condition: ExpressionIR, isStmt: StatementIR, elseStmt: Option[StatementIR]) extends StatementIR
 
 case class ForIR(identifierIR: IdentifierIR, expressionIR: ExpressionIR, blockIR: BlockIR) extends StatementIR
 

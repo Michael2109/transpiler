@@ -104,8 +104,13 @@ object AST2IR {
     case rBinary: RBinary => RBinaryIR(expressionToIR(rBinary.expression1, symbolTable, imports), expressionToIR(rBinary.expression2, symbolTable, imports))
   }
 
-  def methodCallToIR(methodCall: MethodCall, symbolTable: SymbolTable, imports: Map[String, String]): MethodCallIR ={
-    MethodCallIR(methodCall.name.value, methodCall.expression.map(expression => expressionToIR(expression, symbolTable, imports)))
+  def methodCallToIR(methodCall: MethodCall, symbolTable: SymbolTable, imports: Map[String, String]): ExpressionIR ={
+
+    if(methodCall.name.value == "println") {
+      PrintlnIR(methodCall.name.value, methodCall.expression.map(expression => expressionToIR(expression, symbolTable, imports)))
+    } else {
+      MethodCallIR(methodCall.name.value, methodCall.expression.map(expression => expressionToIR(expression, symbolTable, imports)))
+    }
   }
 
   def identifierToIR(identifier: Identifier, symbolTable: SymbolTable, imports: Map[String, String]): IdentifierIR = {
@@ -117,7 +122,7 @@ object AST2IR {
     //  condition: ExpressionIR, isStmt: StatementIR, elseStmt: StatementIR
     val elseBlock = if (ifStatement.elseBlock.isDefined) statementToIR(ifStatement.elseBlock.get, symbolTable, imports) else null
 
-    IfStatementIR(expressionToIR(ifStatement.condition, symbolTable, imports), statementToIR(ifStatement.ifBlock, symbolTable, imports), elseBlock)
+    IfStatementIR(expressionToIR(ifStatement.condition, symbolTable, imports), statementToIR(ifStatement.ifBlock, symbolTable, imports), Option(elseBlock))
     // IdentifierIR(identifier.name.value, null)
   }
 

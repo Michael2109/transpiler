@@ -59,6 +59,9 @@ object CodeGen {
       case intConst: IntConstIR => intConst.value.toString
       case longConst: LongConstIR => longConst.value.toString
       case stringLiteral: StringLiteralIR => "\"" + stringLiteral.value + "\""
+      case rBinaryIR: RBinaryIR => genCode(rBinaryIR.expressionIR1, method) + genCode(rBinaryIR.expressionIR2, method)
+      case PrintlnIR(name, expressions) => name + "(" + expressions.map(expression => genCode(expression, method)).mkString(",")+  ")"
+      case MethodCallIR(name, expressions) => name + "(" + expressions.map(expression => genCode(expression, method)).mkString(",")+  ")"
     }
   }
 
@@ -104,9 +107,11 @@ object CodeGen {
         sb.append("){")
         sb.append(genCode(isStmt, method))
         sb.append("}")
-        sb.append("else{")
-        sb.append(genCode(elseStmt, method))
-        sb.append("}")
+        if(elseStmt.isDefined) {
+          sb.append("else{")
+          sb.append(genCode(elseStmt.get, method))
+          sb.append("}")
+        }
         sb.toString()
       }
     }
