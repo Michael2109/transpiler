@@ -162,8 +162,6 @@ case class VisitVarInsn(opcode: Int, id: Int) extends StatementIR
 
 trait ModifierIR
 
-case class PublicIR() extends ModifierIR
-
 case class ProtectedIR() extends ModifierIR
 
 case class PrivateIR() extends ModifierIR

@@ -44,19 +44,17 @@ object AST {
 
   trait Modifier
 
-  case class Public() extends Modifier
+  case object Protected extends Modifier
 
-  case class Protected() extends Modifier
+  case object Private extends Modifier
 
-  case class Private() extends Modifier
+  case object PackageLocal extends Modifier
 
-  case class PackageLocal() extends Modifier
+  case object Abstract extends Modifier
 
-  case class Abstract() extends Modifier
+  case object Final extends Modifier
 
-  case class Final() extends Modifier
-
-  case class Pure() extends Modifier
+  case object Pure extends Modifier
 
   trait Block extends Statement
 

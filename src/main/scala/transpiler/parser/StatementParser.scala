@@ -1,16 +1,18 @@
 package transpiler.parser
 
 import fastparse.ScalaWhitespace._
-import fastparse._
+import fastparse.{P, _}
 import transpiler.parser.ast.AST._
 
 object StatementParser {
 
-  def accessModifier[_: P]: P[Modifier] = P("protected").map(_ => Protected()) | P("private").map(_ => Private()) | P("local").map(_ => PackageLocal())
+  def accessModifier[_: P]: P[Modifier] = P("protected").map(_ => Protected) | P("private").map(_ => Private) | P("local").map(_ => PackageLocal) |  P("final").map(_ => Final)
+
+  def typeModifier[_: P]: P[Modifier] = P("mutable").map(_ => Final) | P("abstract").map(_ => Abstract) | P("pure").map(_ => Pure)
 
   def annotationParser[_: P]: P[Annotation] = P("@" ~ ExpressionParser.nameParser).map(Annotation)
 
-  def modifiers[_: P]: P[Seq[Modifier]] = P(accessModifier | ExpressionParser.typeModifier).rep
+  def modifiers[_: P]: P[Seq[Modifier]] = P(accessModifier | typeModifier).rep
 
   def newline[_: P]: P0 = P("\n" | "\r\n" | End)
 

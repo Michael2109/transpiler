@@ -125,11 +125,10 @@ object IRUtils {
 
   def modifierToOpcode(modifier: Modifier): Int = {
     modifier match {
-      case _: Public => Opcodes.ACC_PUBLIC
-      case _: Protected => Opcodes.ACC_PROTECTED
-      case _: Private => Opcodes.ACC_PRIVATE
-      case _: Abstract => Opcodes.ACC_ABSTRACT
-      case _: Final => Opcodes.ACC_FINAL
+      case Protected => Opcodes.ACC_PROTECTED
+      case Private => Opcodes.ACC_PRIVATE
+      case Abstract => Opcodes.ACC_ABSTRACT
+      case Final => Opcodes.ACC_FINAL
     }
   }
 }

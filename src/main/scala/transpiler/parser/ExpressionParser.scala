@@ -84,8 +84,6 @@ object ExpressionParser {
 
   def ternaryParser[_: P]: P[Ternary] = P(expressionParser ~ "?" ~ expressionParser ~ ":" ~ expressionParser).map(x => Ternary(x._1, x._2, x._3))
 
-  def typeModifier[_: P]: P[Modifier] = P("mutable").map(_ => Final()) | P("abstract").map(_ => Abstract()) | P("pure").map(_ => Pure())
-
   def typeRefParser[_: P]: P[Type] = refParser.map(Type)
 
   def refParser[_: P]: P[Ref] = P(nameParser.rep(sep = ".", min = 2)).map(x => RefQual(QualName(NameSpace(x.dropRight(1)), x.last))) | P(nameParser).map(RefLocal)

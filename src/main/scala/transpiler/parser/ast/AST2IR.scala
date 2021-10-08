@@ -1,6 +1,6 @@
 package transpiler.parser.ast
 
-import transpiler.parser.ast.AST.{Abstract, Assign, Block, CurlyBracketsBlock, ExprAsStmt, Expression, Final, For, Identifier, If, Inline, IntConst, Method, Module, PackageLocal, Private, Protected, Public, Pure, RBinary, RefLocal, RefQual, Statement}
+import transpiler.parser.ast.AST.{Abstract, Assign, Block, CurlyBracketsBlock, ExprAsStmt, Expression, Final, For, Identifier, If, Inline, IntConst, Method, Module, PackageLocal, Private, Protected, Pure, RBinary, RefLocal, RefQual, Statement}
 import transpiler.symbol_table.{ClassEntry, SymbolTable}
 
 import scala.collection.mutable.ListBuffer
@@ -61,13 +61,12 @@ object AST2IR {
 
     // name: String, modifiers: mutable.SortedSet[String], fields: ListBuffer[(String, String)], returnType: String, body: ListBuffer[StatementIR]
     val modifiers: List[ModifierIR] = method.modifiers.map(modifier => modifier match {
-      case Public() => PublicIR()
-      case Private() => PrivateIR()
-      case Protected() => ProtectedIR()
-      case Final() => FinalIR()
-      case Pure() => PureIR()
-      case PackageLocal() => PackageLocalIR()
-      case Abstract() => AbstractIR()
+      case Private => PrivateIR()
+      case Protected => ProtectedIR()
+      case Final => FinalIR()
+      case Pure => PureIR()
+      case PackageLocal => PackageLocalIR()
+      case Abstract => AbstractIR()
     }).toList
 
     // val fields = method.fields.map(field => field.)

@@ -78,7 +78,7 @@ class MethodParserTest extends AnyFunSpec with Matchers {
         """protected private abstract let method() Int = { 1 }
         """.stripMargin.replace("\r", "")
       val Parsed.Success(value, _) = parse(code, StatementParser.statementParser(_))
-      value shouldBe Method(Name("method"),List(),ArrayBuffer(),ArrayBuffer(Protected(), Private(), Abstract()),Some(Type(RefLocal(Name("Int")))),CurlyBracketsBlock(ArrayBuffer(ExprAsStmt(IntConst(1)))))
+      value shouldBe Method(Name("method"),List(),ArrayBuffer(),ArrayBuffer(Protected, Private, Abstract),Some(Type(RefLocal(Name("Int")))),CurlyBracketsBlock(ArrayBuffer(ExprAsStmt(IntConst(1)))))
     }
   }
 }
