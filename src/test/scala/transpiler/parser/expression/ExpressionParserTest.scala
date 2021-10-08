@@ -5,14 +5,15 @@ import org.scalatest.funspec.AnyFunSpec
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
 import transpiler.parser.ExpressionParser
-import transpiler.parser.ast.AST.{BlockExpr, BoolConst, Identifier, MethodCall, Name, NestedExpr}
+import transpiler.parser.StatementParser.expressionParser
+import transpiler.parser.ast.{Identifier, MethodCall, Name, NestedExpr}
 
 import scala.collection.mutable.ArrayBuffer
 
 class ExpressionParserTest extends AnyFunSpec with Matchers {
   describe("Nested expression call parser test") {
     it("Should parse nested expression calls") {
-      val Parsed.Success(value, _) = parse("x.toString()", ExpressionParser.expressionParser(_))
+      val Parsed.Success(value, _) = parse("x.toString()", expressionParser(_))
       value shouldBe NestedExpr(ArrayBuffer(Identifier(Name("x")), MethodCall(Name("toString"), ArrayBuffer())))
     }
   }

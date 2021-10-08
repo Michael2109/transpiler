@@ -5,7 +5,7 @@ import org.scalatest.funspec.AnyFunSpec
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
 import transpiler.parser.StatementParser
-import transpiler.parser.ast.AST._
+import transpiler.parser.ast._
 
 import scala.collection.mutable.ArrayBuffer
 

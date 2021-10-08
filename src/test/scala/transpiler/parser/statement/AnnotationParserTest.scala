@@ -5,7 +5,7 @@ import org.scalatest.funspec.AnyFunSpec
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
 import transpiler.parser.{ExpressionParser, StatementParser}
-import transpiler.parser.ast.AST.{Annotation, Name}
+import transpiler.parser.ast._
 
 
 

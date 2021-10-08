@@ -2,10 +2,10 @@ package transpiler.parser
 
 import fastparse.ScalaWhitespace._
 import fastparse._
-import transpiler.parser.ast.AST
-import transpiler.parser.ast.AST._
+import transpiler.parser.ast._
 
-object ExpressionParser {
+
+class ExpressionParser {
 
   /*
 
@@ -45,11 +45,11 @@ object ExpressionParser {
           case "/" => ABinary(Divide, left, right)
           case "+" => ABinary(Add, left, right)
           case "-" => ABinary(Subtract, left, right)
-          case "<" => RBinary(AST.Less, left, right)
-          case ">" => RBinary(AST.Greater, left, right)
-          case "==" => RBinary(AST.Equal, left, right)
-          case ">=" => RBinary(AST.GreaterEqual, left, right)
-          case "<=" => RBinary(AST.LessEqual, left, right)
+          case "<" => RBinary(Less, left, right)
+          case ">" => RBinary(Greater, left, right)
+          case "==" => RBinary(Equal, left, right)
+          case ">=" => RBinary(GreaterEqual, left, right)
+          case "<=" => RBinary(LessEqual, left, right)
         }
       }
     }
@@ -66,11 +66,11 @@ object ExpressionParser {
   }
 
 
-  def identifierParser[_: P]: P[AST.Identifier] = LexicalParser.identifier.map(x => Identifier(Name(x)))
+  def identifierParser[_: P]: P[Identifier] = LexicalParser.identifier.map(x => Identifier(Name(x)))
 
-  def booleanParser[_: P]: P[AST.BoolConst] = LexicalParser.booleanConst.map(BoolConst(_))
+  def booleanParser[_: P]: P[BoolConst] = LexicalParser.booleanConst.map(BoolConst(_))
 
-  def finalParser[_: P]: P[AST.Final.type] = P("final").map(_ => Final)
+  def finalParser[_: P]: P[Final.type] = P("final").map(_ => Final)
 
   def methodCallParser[_: P]: P[MethodCall] = P(nameParser ~ "(" ~/ expressionParser.rep(sep = ",") ~ ")").map(x => MethodCall(x._1, x._2))
 
@@ -91,27 +91,27 @@ object ExpressionParser {
 
   def op[_: P](s: P0, rhs: Operator): P[Operator] = s.!.map(_ => rhs)
 
-  def Lt[_: P]: P[Operator] = op("<", AST.Less.asInstanceOf[Operator])
+  def Lt[_: P]: P[Operator] = op("<", Less.asInstanceOf[Operator])
 
-  def Gt[_: P]: P[Operator] = op(">", AST.Greater.asInstanceOf[Operator])
+  def Gt[_: P]: P[Operator] = op(">", Greater.asInstanceOf[Operator])
 
-  def Eq[_: P]: P[Operator] = op("==", AST.Equal.asInstanceOf[Operator])
+  def Eq[_: P]: P[Operator] = op("==", Equal.asInstanceOf[Operator])
 
-  def GtE[_: P]: P[Operator] = op(">=", AST.GreaterEqual.asInstanceOf[Operator])
+  def GtE[_: P]: P[Operator] = op(">=", GreaterEqual.asInstanceOf[Operator])
 
-  def LtE[_: P]: P[Operator] = op("<=", AST.LessEqual.asInstanceOf[Operator])
+  def LtE[_: P]: P[Operator] = op("<=", LessEqual.asInstanceOf[Operator])
 
   def comp_op[_: P]: P[Operator] = P(LtE | GtE | Eq | Gt | Lt)
 
-  def add[_: P]: P[Operator] = op("+", AST.Add.asInstanceOf[Operator])
+  def add[_: P]: P[Operator] = op("+", Add.asInstanceOf[Operator])
 
-  def subtract[_: P]: P[Operator] = op("-", AST.Subtract.asInstanceOf[Operator])
+  def subtract[_: P]: P[Operator] = op("-", Subtract.asInstanceOf[Operator])
 
-  def multiply[_: P]: P[Operator] = op("*", AST.Multiply.asInstanceOf[Operator])
+  def multiply[_: P]: P[Operator] = op("*", Multiply.asInstanceOf[Operator])
 
-  def divide[_: P]: P[Operator] = op("/", AST.Divide.asInstanceOf[Operator])
+  def divide[_: P]: P[Operator] = op("/", Divide.asInstanceOf[Operator])
 
-  def and[_: P]: P[Operator] = op("&&", AST.And.asInstanceOf[Operator])
+  def and[_: P]: P[Operator] = op("&&", And.asInstanceOf[Operator])
 
-  def or[_: P]: P[Operator] = op("||", AST.Or.asInstanceOf[Operator])
+  def or[_: P]: P[Operator] = op("||", Or.asInstanceOf[Operator])
 }

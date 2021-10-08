@@ -97,6 +97,18 @@ object CodeGen {
         sb.append(";")
         sb.toString()
       }
+      case IfStatementIR(condition, isStmt, elseStmt) => {
+        val sb = new StringBuilder()
+        sb.append("if(")
+        sb.append(genCode(condition, method))
+        sb.append("){")
+        sb.append(genCode(isStmt, method))
+        sb.append("}")
+        sb.append("else{")
+        sb.append(genCode(elseStmt, method))
+        sb.append("}")
+        sb.toString()
+      }
     }
   }
 

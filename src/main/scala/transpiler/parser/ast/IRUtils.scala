@@ -1,7 +1,7 @@
 package transpiler.parser.ast
 
 import jdk.internal.org.objectweb.asm.Opcodes
-import transpiler.parser.ast.AST._
+import transpiler.parser.ast._
 import transpiler.symbol_table.{SymbolTable, ValueEntry}
 
 object IRUtils {

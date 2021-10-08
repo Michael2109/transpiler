@@ -5,15 +5,15 @@ import org.scalatest.funspec.AnyFunSpec
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
 import transpiler.parser.StatementParser
-import transpiler.parser.ast.AST._
+import transpiler.parser.ast._
 
 import scala.collection.mutable.ArrayBuffer
 
 
-class FileParserTest extends AnyFunSpec with Matchers {
-  describe("File parser") {
+class ModuleParserTest extends AnyFunSpec with Matchers {
+  describe("Module parser") {
 
-    it("Should parse a file - No imports") {
+    it("Should parse a module - No imports") {
       val code =
         """package a.b.c
         """.stripMargin.replace("\r", "")
@@ -21,7 +21,7 @@ class FileParserTest extends AnyFunSpec with Matchers {
       value shouldBe Module(ModuleHeader(Package(ArrayBuffer(Name("a"), Name("b"), Name("c"))),ArrayBuffer()),ArrayBuffer())
     }
 
-    it("Should parse a file - No classes") {
+    it("Should parse a module - No classes") {
       val code =
         """package a.b.c
           |
@@ -31,7 +31,7 @@ class FileParserTest extends AnyFunSpec with Matchers {
       value shouldBe Module(ModuleHeader(Package(ArrayBuffer(Name("a"), Name("b"), Name("c"))),ArrayBuffer(Import(ArrayBuffer(Name("x"), Name("y"), Name("z"))))),ArrayBuffer())
     }
 
-    it("Should parse a file - One class") {
+    it("Should parse a module - One class") {
       val code =
         """package a.b.c
           |
@@ -45,7 +45,7 @@ class FileParserTest extends AnyFunSpec with Matchers {
       value shouldBe Module(ModuleHeader(Package(ArrayBuffer(Name("a"), Name("b"), Name("c"))),ArrayBuffer(Import(ArrayBuffer(Name("x"), Name("y"), Name("z"))))),ArrayBuffer(Model(ClassModelType,Name("A"),List(),List(),None,List(),ArrayBuffer(),ArrayBuffer())))
     }
 
-    it("Should parse a file - Multiple classes") {
+    it("Should parse a module - Multiple classes") {
       val code =
         """package a.b.c
           |
@@ -59,7 +59,7 @@ class FileParserTest extends AnyFunSpec with Matchers {
       value shouldBe Module(ModuleHeader(Package(ArrayBuffer(Name("a"), Name("b"), Name("c"))),ArrayBuffer(Import(ArrayBuffer(Name("x"), Name("y"), Name("z"))))),ArrayBuffer(Model(ClassModelType,Name("A"),List(),List(),None,List(),ArrayBuffer(),ArrayBuffer()),Model(ClassModelType,Name("B"),List(),List(),None,List(),ArrayBuffer(),ArrayBuffer()),Model(ClassModelType,Name("C"),List(),List(),None,List(),ArrayBuffer(),ArrayBuffer())))
     }
 
-    it("Should parse a file - class with nested content") {
+    it("Should parse a module - class with nested content") {
       val code =
         """package a.b.c
           |

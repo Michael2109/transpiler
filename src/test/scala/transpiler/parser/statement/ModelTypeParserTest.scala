@@ -5,7 +5,8 @@ import org.scalatest.funspec.AnyFunSpec
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
 import transpiler.parser.StatementParser
-import transpiler.parser.ast.AST.{ClassModelType, ObjectModelType, TraitModelType}
+import transpiler.parser.StatementParser._
+import transpiler.parser.ast.{ClassModelType, ObjectModelType, TraitModelType}
 
 class ModelTypeParserTest extends AnyFunSpec with Matchers {
   describe("Model Type Parser") {

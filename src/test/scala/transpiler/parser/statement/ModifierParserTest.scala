@@ -5,7 +5,8 @@ import org.scalatest.funspec.AnyFunSpec
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
 import transpiler.parser.StatementParser
-import transpiler.parser.ast.AST.{Abstract, Final, PackageLocal, Private, Protected, Pure}
+import transpiler.parser.StatementParser._
+import transpiler.parser.ast._
 
 class ModifierParserTest extends AnyFunSpec with Matchers {
   describe("Modifier parser") {
