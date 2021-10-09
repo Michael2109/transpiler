@@ -47,15 +47,17 @@ class CodeGenTest extends AnyFunSpec with Matchers {
       options.set("anon.functions", true);
       options.set("parse.only", true);
       options.set("scripting", true);
+      options.set("language", "es6")
 
       val errors = new ErrorManager();
       val context = new Context(options, errors, Thread.currentThread().getContextClassLoader());
-      val source   =  Source.sourceFor("test", "var a = 10; var b = a + 1;function someFunction() { return b + 1; }  ");
+      val source   =  Source.sourceFor("test", compiledCode.head);
       val parser = new Parser(context.getEnv(), source, errors);
       val functionNode = parser.parse();
       val block = functionNode.getBody();
       val statements = block.getStatements();
 
+      println(block)
       println(statements)
     }
 
