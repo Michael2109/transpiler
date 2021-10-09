@@ -27,7 +27,7 @@ class ExpressionParser {
 
   def parens[_: P]: P[Expression] = P("(" ~/ addSub ~ ")")
 
-  def factor[_: P]: P[Expression] = methodCallParser | newClassInstanceParser | numberParser | booleanParser | identifierParser | stringLiteral | parens
+  def factor[_: P]: P[Expression] = methodCallParser | newClassInstanceParser | numberParser | booleanParser | identifierParser | arrayParser | stringLiteral | parens
 
   def divMul[_: P]: P[Expression] = P(factor ~ (CharIn("*/").! ~/ factor).rep).map(chain _ tupled)
 
@@ -65,10 +65,11 @@ class ExpressionParser {
     })
   }
 
+  def arrayParser[_: P]: P[ArrayValue] = P("[" ~ expressionParser.rep(sep=",") ~ "]").map(ArrayValue)
 
   def identifierParser[_: P]: P[Identifier] = LexicalParser.identifier.map(x => Identifier(Name(x)))
 
-  def booleanParser[_: P]: P[BoolConst] = LexicalParser.booleanConst.map(BoolConst(_))
+  def booleanParser[_: P]: P[BoolConst] = LexicalParser.booleanConst.map(BoolConst)
 
   def finalParser[_: P]: P[Final.type] = P("final").map(_ => Final)
 

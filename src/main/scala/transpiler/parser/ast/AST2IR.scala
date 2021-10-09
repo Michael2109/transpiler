@@ -97,11 +97,19 @@ object AST2IR {
   }
 
   def expressionToIR(expression: Expression, symbolTable: SymbolTable, imports: Map[String, String]): ExpressionIR = expression match {
+    case arrayValue: ArrayValue => ArrayValueIR(arrayValue.expressions.map(a => expressionToIR(a, symbolTable, imports)))
     case intConst: IntConst => IntConstIR(intConst.value)
     case stringLiteral: StringLiteral => StringLiteralIR(stringLiteral.value)
     case identifier: Identifier => identifierToIR(identifier, symbolTable, imports)
     case methodCall: MethodCall => methodCallToIR(methodCall, symbolTable, imports)
-    case rBinary: RBinary => RBinaryIR(expressionToIR(rBinary.expression1, symbolTable, imports), expressionToIR(rBinary.expression2, symbolTable, imports))
+    case rBinary: RBinary => RBinaryIR(relationalOpToIR(rBinary.op), expressionToIR(rBinary.expression1, symbolTable, imports), expressionToIR(rBinary.expression2, symbolTable, imports))
+  }
+  def relationalOpToIR(op: RBinOp): RelationalOperatorIR  = op match {
+    case  GreaterEqual => GreaterEqualIR
+    case Greater  => GreaterIR
+    case  LessEqual => LessEqualIR
+    case  Less => LessIR
+    case  Equal => EqualIR
   }
 
   def methodCallToIR(methodCall: MethodCall, symbolTable: SymbolTable, imports: Map[String, String]): ExpressionIR ={

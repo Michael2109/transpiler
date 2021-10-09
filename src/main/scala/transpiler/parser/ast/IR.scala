@@ -33,6 +33,8 @@ case class DoBlockIR(statements: List[StatementIR]) extends BlockIR
 
 trait ExpressionIR
 
+case class ArrayValueIR(expressionIRs: Seq[ExpressionIR]) extends ExpressionIR
+
 case class PrintlnIR( name: String, expressions: Seq[ExpressionIR]) extends ExpressionIR
 
 case class MethodCallIR( name: String, expressions: Seq[ExpressionIR]) extends ExpressionIR
@@ -49,7 +51,7 @@ case class LongConstIR(value: BigInt) extends ExpressionIR
 
 case class StringLiteralIR(value: String) extends ExpressionIR
 
-case class RBinaryIR(expressionIR1: ExpressionIR, expressionIR2: ExpressionIR) extends ExpressionIR
+case class RBinaryIR(operatorIR: RelationalOperatorIR, expressionIR1: ExpressionIR, expressionIR2: ExpressionIR) extends ExpressionIR
 
 trait StatementIR
 
@@ -100,6 +102,18 @@ case class UnitType() extends TypeIR {
 case class UnknownType() extends TypeIR {
   override val classLoc: String = null
 }
+
+trait RelationalOperatorIR extends StatementIR
+
+case object GreaterEqualIR extends RelationalOperatorIR
+
+case object GreaterIR extends RelationalOperatorIR
+
+case object LessEqualIR extends RelationalOperatorIR
+
+case object LessIR extends RelationalOperatorIR
+
+case object EqualIR extends RelationalOperatorIR
 
 trait ArithmeticOperatorIR extends StatementIR
 

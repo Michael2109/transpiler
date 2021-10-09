@@ -6,6 +6,14 @@ import org.scalatest.matchers.must.Matchers
 import transpiler.parser.StatementParser
 import transpiler.parser.ast.{AST2IR, ModelIR}
 
+import jdk.nashorn.internal.parser.Parser
+import jdk.nashorn.internal.runtime.Context
+import jdk.nashorn.internal.runtime.ErrorManager
+import jdk.nashorn.internal.runtime.options.Options
+
+import jdk.nashorn.internal.runtime.Source
+
+
 class CodeGenTest extends AnyFunSpec with Matchers {
   describe("Model parser") {
     it("Should parse a model with no fields") {
@@ -14,6 +22,7 @@ class CodeGenTest extends AnyFunSpec with Matchers {
           |class ClassName {
           |  let x() Int ={
           |    let y = 10
+          |    let array = []
           |    for i in array {
           |      if y < 5 {
           |        println("Something")
@@ -31,10 +40,23 @@ class CodeGenTest extends AnyFunSpec with Matchers {
 
       println(modelIRs)
 
-      val compiledCode = modelIRs.map(CodeGen.genModelCode)
-      println(compiledCode)
+      val compiledCode: List[String] = modelIRs.map(CodeGen.genModelCode).toList
+      println(compiledCode.head)
 
+      val options = new Options("nashorn");
+      options.set("anon.functions", true);
+      options.set("parse.only", true);
+      options.set("scripting", true);
 
+      val errors = new ErrorManager();
+      val context = new Context(options, errors, Thread.currentThread().getContextClassLoader());
+      val source   =  Source.sourceFor("test", "var a = 10; var b = a + 1;function someFunction() { return b + 1; }  ");
+      val parser = new Parser(context.getEnv(), source, errors);
+      val functionNode = parser.parse();
+      val block = functionNode.getBody();
+      val statements = block.getStatements();
+
+      println(statements)
     }
 
   }

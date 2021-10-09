@@ -8,9 +8,6 @@ object CodeGen {
 
     val sb: StringBuilder = new StringBuilder()
 
-    println(model)
-
-
     model match {
       case classModel: ClassModelIR => {
 
@@ -19,7 +16,7 @@ object CodeGen {
         //  classModel.externalStatements.foreach(v => genCode(stringBuilder, v))
         sb.append(classModel.methods.map(m => genCode(m)).mkString)
 
-        sb.append("}")
+        sb.append("};")
       }
     }
 
@@ -33,7 +30,7 @@ object CodeGen {
     sb.append(method.fields.map(_._1).mkString(","))
     sb.append("){")
     sb.append(genCode(method.body, method))
-    sb.append("}")
+    sb.append("};")
 
     sb.toString()
   }
@@ -53,14 +50,15 @@ object CodeGen {
   def genCode(expression: ExpressionIR, method: MethodIR): String = {
 
     expression match {
+      case ArrayValueIR(expressionIRs) =>"[" +  expressionIRs.map(expression => genCode(expression, method)).mkString(",") + "]"
       case identifier: IdentifierIR => identifierGenCode(identifier)
       case doubleConst: DoubleConstIR => doubleConst.value.toString
       case floatConst: FloatConstIR => floatConst.value.toString
       case intConst: IntConstIR => intConst.value.toString
       case longConst: LongConstIR => longConst.value.toString
       case stringLiteral: StringLiteralIR => "\"" + stringLiteral.value + "\""
-      case rBinaryIR: RBinaryIR => genCode(rBinaryIR.expressionIR1, method) + genCode(rBinaryIR.expressionIR2, method)
-      case PrintlnIR(name, expressions) => name + "(" + expressions.map(expression => genCode(expression, method)).mkString(",")+  ")"
+      case rBinaryIR: RBinaryIR => genCode(rBinaryIR.expressionIR1, method) + genCode(rBinaryIR.operatorIR, method) + genCode(rBinaryIR.expressionIR2, method)
+      case PrintlnIR(name, expressions) => "console.log(" + expressions.map(expression => genCode(expression, method)).mkString(",")+  ")"
       case MethodCallIR(name, expressions) => name + "(" + expressions.map(expression => genCode(expression, method)).mkString(",")+  ")"
     }
   }
@@ -75,7 +73,7 @@ object CodeGen {
       case identifierIR: IdentifierIR => identifierIR.name
       case doBlock: DoBlockIR => genCode(doBlock.asInstanceOf[BlockIR], method)
       case forIR: ForIR => forLoopGenCode(forIR, method)
-      case exprAsStmt: ExprAsStmtIR => genCode(exprAsStmt.expressionIR, method)
+      case exprAsStmt: ExprAsStmtIR => genCode(exprAsStmt.expressionIR, method) + ";"
       case DAdd => "+"
       case DSub => "-"
       case DMul => "*"
@@ -92,10 +90,15 @@ object CodeGen {
       case LSub => "-"
       case LMul => "*"
       case LDiv => "/"
+      case LessIR => "<"
+      case LessEqualIR => "<="
+      case GreaterIR => ">"
+      case GreaterEqualIR => ">="
+      case EqualIR => "=="
       case inline: InlineIR => genCode(inline.asInstanceOf[BlockIR], method)
       case AssignIR(name, immutable, block) => {
         val sb = new StringBuilder()
-        sb.append(s"const $name = ")
+        sb.append(s"var $name = ")
         sb.append(genCode(block, method))
         sb.append(";")
         sb.toString()

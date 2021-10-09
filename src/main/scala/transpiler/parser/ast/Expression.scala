@@ -6,6 +6,8 @@ case class BlockExpr(expressions: Seq[Expression]) extends Expression
 
 case class NestedExpr(expressions: Seq[Expression]) extends Expression
 
+case class ArrayValue(expressions: Seq[Expression]) extends Expression
+
 case class Identifier(name: Name) extends Expression
 
 case class MethodCall(name: Name, expression: Seq[Expression]) extends Expression
@@ -39,7 +41,5 @@ case class DoubleConst(value: BigDecimal) extends Expression
 case class FloatConst(value: BigDecimal) extends Expression
 
 case class Neg(expression: Expression) extends Expression
-
-case class ArrayValue() extends Expression
 
 case class SpecialRefAsExpr() extends Expression
