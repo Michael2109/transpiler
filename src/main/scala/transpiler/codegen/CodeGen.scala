@@ -9,6 +9,7 @@ object CodeGen {
     val sb: StringBuilder = new StringBuilder()
 
     sb.append(s"class ${model.name} {")
+    sb.append(model.fields.map(field => genCode(field)).mkString)
 
     //  classModel.externalStatements.foreach(v => genCode(stringBuilder, v))
     sb.append(model.methods.map(m => genCode(m)).mkString)
@@ -19,43 +20,54 @@ object CodeGen {
     sb.toString()
   }
 
+  def genCode(field: FieldIR): String = {
+    val sb = new StringBuilder()
+    sb.append(s"${field.name}(){")
+    if(field.init.isDefined) {
+      sb.append(genCode(field.init.get))
+      sb.append("}")
+    }
+
+    sb.toString()
+  }
+
   def genCode(method: MethodIR): String = {
     val sb = new StringBuilder()
     sb.append(method.name)
     sb.append("(")
     sb.append(method.fields.map(_._1).mkString(","))
     sb.append("){")
-    sb.append(genCode(method.body, method))
+    sb.append(genCode(method.body))
     sb.append("};")
 
     sb.toString()
   }
 
-  def forLoopGenCode(forIR: ForIR, method: MethodIR): String = {
+  def forLoopGenCode(forIR: ForIR): String = {
 
     val variableName = forIR.identifierIR.name
     val sb = new StringBuilder()
-    sb.append(genCode(forIR.expressionIR, method))
+    sb.append(genCode(forIR.expressionIR))
     sb.append(s".forEach($variableName => {")
-    sb.append(genCode(forIR.blockIR, method))
+    sb.append(genCode(forIR.blockIR))
     sb.append("});")
 
     sb.toString()
   }
 
-  def genCode(expression: ExpressionIR, method: MethodIR): String = {
+  def genCode(expression: ExpressionIR): String = {
 
     expression match {
-      case ArrayValueIR(expressionIRs) => "[" + expressionIRs.map(expression => genCode(expression, method)).mkString(",") + "]"
+      case ArrayValueIR(expressionIRs) => "[" + expressionIRs.map(expression => genCode(expression)).mkString(",") + "]"
       case identifier: IdentifierIR => identifierGenCode(identifier)
       case doubleConst: DoubleConstIR => doubleConst.value.toString
       case floatConst: FloatConstIR => floatConst.value.toString
       case intConst: IntConstIR => intConst.value.toString
       case longConst: LongConstIR => longConst.value.toString
       case stringLiteral: StringLiteralIR => "\"" + stringLiteral.value + "\""
-      case rBinaryIR: RBinaryIR => genCode(rBinaryIR.expressionIR1, method) + genCode(rBinaryIR.operatorIR, method) + genCode(rBinaryIR.expressionIR2, method)
-      case PrintlnIR(name, expressions) => "console.log(" + expressions.map(expression => genCode(expression, method)).mkString(",") + ")"
-      case MethodCallIR(name, expressions) => name + "(" + expressions.map(expression => genCode(expression, method)).mkString(",") + ")"
+      case rBinaryIR: RBinaryIR => genCode(rBinaryIR.expressionIR1) + genCode(rBinaryIR.operatorIR) + genCode(rBinaryIR.expressionIR2)
+      case PrintlnIR(name, expressions) => "console.log(" + expressions.map(expression => genCode(expression)).mkString(",") + ")"
+      case MethodCallIR(name, expressions) => name + "(" + expressions.map(expression => genCode(expression)).mkString(",") + ")"
     }
   }
 
@@ -63,13 +75,13 @@ object CodeGen {
     identifierIR.name
   }
 
-  def genCode(statement: StatementIR, method: MethodIR): String = {
+  def genCode(statement: StatementIR): String = {
 
     statement match {
       case identifierIR: IdentifierIR => identifierIR.name
-      case doBlock: DoBlockIR => genCode(doBlock.asInstanceOf[BlockIR], method)
-      case forIR: ForIR => forLoopGenCode(forIR, method)
-      case exprAsStmt: ExprAsStmtIR => genCode(exprAsStmt.expressionIR, method) + ";"
+      case doBlock: DoBlockIR => genCode(doBlock.asInstanceOf[BlockIR])
+      case forIR: ForIR => forLoopGenCode(forIR)
+      case exprAsStmt: ExprAsStmtIR => genCode(exprAsStmt.expressionIR) + ";"
       case DAdd => "+"
       case DSub => "-"
       case DMul => "*"
@@ -91,24 +103,24 @@ object CodeGen {
       case GreaterIR => ">"
       case GreaterEqualIR => ">="
       case EqualIR => "=="
-      case inline: InlineIR => genCode(inline.asInstanceOf[BlockIR], method)
+      case inline: InlineIR => genCode(inline.asInstanceOf[BlockIR])
       case AssignIR(name, immutable, block) => {
         val sb = new StringBuilder()
         sb.append(s"var $name = ")
-        sb.append(genCode(block, method))
+        sb.append(genCode(block))
         sb.append(";")
         sb.toString()
       }
       case IfStatementIR(condition, isStmt, elseStmt) => {
         val sb = new StringBuilder()
         sb.append("if(")
-        sb.append(genCode(condition, method))
+        sb.append(genCode(condition))
         sb.append("){")
-        sb.append(genCode(isStmt, method))
+        sb.append(genCode(isStmt))
         sb.append("}")
         if (elseStmt.isDefined) {
           sb.append("else{")
-          sb.append(genCode(elseStmt.get, method))
+          sb.append(genCode(elseStmt.get))
           sb.append("}")
         }
         sb.toString()
@@ -116,10 +128,10 @@ object CodeGen {
     }
   }
 
-  def genCode(block: BlockIR, method: MethodIR): String = {
+  def genCode(block: BlockIR): String = {
     block match {
-      case doBlock: DoBlockIR => doBlock.statements.map(statement => genCode(statement, method)).mkString
-      case inline: InlineIR => genCode(inline.expression, method)
+      case doBlock: DoBlockIR => doBlock.statements.map(statement => genCode(statement)).mkString
+      case inline: InlineIR => genCode(inline.expression)
     }
   }
 }
