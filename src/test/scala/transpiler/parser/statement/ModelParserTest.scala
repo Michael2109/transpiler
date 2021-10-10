@@ -12,17 +12,17 @@ import scala.collection.mutable.ArrayBuffer
 
 class ModelParserTest extends AnyFunSpec with Matchers {
   describe("Model parser") {
-    it("Should parse a model with no fields") {
+    it("Should parse a model with no parent/traits") {
       val code =
         """class Test {
-          |  let x = 10
+          |  let x: Int = 10
           |  let exampleMethod() Int = {
           |    1
           |  }
           |}
         """.stripMargin.replace("\r", "")
       val Parsed.Success(value, _) = parse(code, StatementParser.statementParser(_))
-      value shouldBe Model(ClassModelType, Name("Test"), List(), None, List(), ArrayBuffer(), Seq(Assign(Name("x"), None, true, Inline(IntConst(10))), Method(Name("exampleMethod"), List(), ArrayBuffer(), ArrayBuffer(), Some(Type(RefLocal(Name("Int")))), CurlyBracketsBlock(ArrayBuffer(ExprAsStmt(IntConst(1)))))))
+      value shouldBe Model(ClassModelType,Name("Test"),List(),None,List(),ArrayBuffer(),ArrayBuffer(Field(Name("x"),Type(RefLocal(Name("Int"))),Some(ExprAsStmt(IntConst(10)))), Method(Name("exampleMethod"),List(),ArrayBuffer(),ArrayBuffer(),Some(Type(RefLocal(Name("Int")))),CurlyBracketsBlock(ArrayBuffer(ExprAsStmt(IntConst(1)))))))
     }
 
     it("Should parse a model that extends a parent") {

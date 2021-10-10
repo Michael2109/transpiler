@@ -10,9 +10,11 @@ case class CurlyBracketsBlock(statements: Seq[Statement]) extends Block
 
 case class Model(modelType: ModelType, name: Name, modifiers: Seq[Modifier], parent: Option[Type], parentArguments: Seq[Expression], interfaces: Seq[Type], body: Seq[Statement]) extends Statement
 
+case class Parameter(name: Name, `type`: Type, init: Option[Expression])
+
 case class Field(name: Name, `type`: Type, init: Option[Statement]) extends Statement
 
-case class Method(name: Name, annotations: Seq[Annotation], fields: Seq[Field], modifiers: Seq[Modifier], returnType: Option[Type], body: Block) extends Statement
+case class Method(name: Name, annotations: Seq[Annotation], fields: Seq[Parameter], modifiers: Seq[Modifier], returnType: Option[Type], body: Block) extends Statement
 
 case class For(identifier: Identifier, expression: Expression, block: Block) extends Statement
 

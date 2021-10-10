@@ -18,7 +18,7 @@ object StatementParser extends ExpressionParser {
 
   def endMarker[_: P]: P0 = P(End)
 
-  def assignParser[_: P]: P[Assign] = P("let" ~ ("mutable").!.? ~ nameParser ~ (":" ~ typeRefParser).? ~/ P("=") ~ exprAsStmt).map(x => Assign(x._2, x._3, x._1.isEmpty, Inline(x._4.expression)))
+  def assignParser[_: P]: P[Assign] = P("let" ~ ("mutable").!.? ~ nameParser ~ (":" ~/ typeRefParser).? ~/ P("=") ~ exprAsStmt).map(x => Assign(x._2, x._3, x._1.isEmpty, Inline(x._4.expression)))
 
   def blockParser[_: P]: P[Block] = P(curlyBracketsBlock)
 
@@ -37,7 +37,9 @@ object StatementParser extends ExpressionParser {
 
   def fieldParser[_: P]: P[Field] = P("let" ~ nameParser ~ ":" ~ typeRefParser ~ ("=" ~ statementParser).?).map(x => Field(x._1, x._2, x._3))
 
-  def methodParser[_: P]: P[Statement] = P(modifiers ~ "let" ~ nameParser ~ "(" ~/ fieldParser.rep(sep = ",") ~/ ")" ~/ (typeRefParser).? ~/ "=" ~ blockParser).map(x => Method(x._2, Seq(), x._3, x._1, x._4, x._5))
+  def parameterParser[_: P]: P[Parameter] = P(nameParser ~ ":" ~ typeRefParser ~ ("=" ~ expressionParser).?).map(x => Parameter(x._1, x._2, x._3))
+
+  def methodParser[_: P]: P[Statement] = P(modifiers ~ "let" ~ nameParser ~ "(" ~/ parameterParser.rep(sep = ",") ~/ ")" ~/ (typeRefParser).? ~/ "=" ~ blockParser).map(x => Method(x._2, Seq(), x._3, x._1, x._4, x._5))
 
   def modelTypeParser[_: P]: P[ModelType] = P(classModelTypeParser | traitModelTypeParser | objectModelTypeParser)
 

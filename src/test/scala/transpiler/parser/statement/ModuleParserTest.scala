@@ -66,14 +66,14 @@ class ModuleParserTest extends AnyFunSpec with Matchers {
           |import x.y.z
           |
           |class Test {
-          |  let x = 10
+          |  let x: Int = 10
           |  let exampleMethod() Int = {
           |    1
           |  }
           |}
         """.stripMargin.replace("\r", "")
       val Parsed.Success(value, _) = parse(code, StatementParser.fileParser(_))
-      value shouldBe Module(ModuleHeader(Package(ArrayBuffer(Name("a"), Name("b"), Name("c"))),ArrayBuffer(Import(ArrayBuffer(Name("x"), Name("y"), Name("z"))))),ArrayBuffer(Model(ClassModelType,Name("Test"),List(),None,List(),ArrayBuffer(),ArrayBuffer(Assign(Name("x"),None,true,Inline(IntConst(10))), Method(Name("exampleMethod"),List(),ArrayBuffer(),ArrayBuffer(),Some(Type(RefLocal(Name("Int")))),CurlyBracketsBlock(ArrayBuffer(ExprAsStmt(IntConst(1)))))))))
+      value shouldBe Module(ModuleHeader(Package(ArrayBuffer(Name("a"), Name("b"), Name("c"))),ArrayBuffer(Import(ArrayBuffer(Name("x"), Name("y"), Name("z"))))),ArrayBuffer(Model(ClassModelType,Name("Test"),List(),None,List(),ArrayBuffer(),ArrayBuffer(Field(Name("x"),Type(RefLocal(Name("Int"))),Some(ExprAsStmt(IntConst(10)))), Method(Name("exampleMethod"),List(),ArrayBuffer(),ArrayBuffer(),Some(Type(RefLocal(Name("Int")))),CurlyBracketsBlock(ArrayBuffer(ExprAsStmt(IntConst(1)))))))))
     }
   }
 }

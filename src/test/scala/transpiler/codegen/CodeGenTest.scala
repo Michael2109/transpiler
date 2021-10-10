@@ -4,14 +4,12 @@ import fastparse.{Parsed, parse}
 import org.scalatest.funspec.AnyFunSpec
 import org.scalatest.matchers.must.Matchers
 import transpiler.parser.StatementParser
-import transpiler.parser.ast.{AST2IR, ModelIR}
-
 import jdk.nashorn.internal.parser.Parser
 import jdk.nashorn.internal.runtime.Context
 import jdk.nashorn.internal.runtime.ErrorManager
 import jdk.nashorn.internal.runtime.options.Options
-
 import jdk.nashorn.internal.runtime.Source
+import transpiler.js.{AST2IR, ModelIR}
 
 
 class CodeGenTest extends AnyFunSpec with Matchers {
@@ -60,7 +58,7 @@ class CodeGenTest extends AnyFunSpec with Matchers {
       val block = functionNode.getBody();
       val statements = block.getStatements();
 
-
+      println(functionNode)
       println(block)
       println(statements)
     }

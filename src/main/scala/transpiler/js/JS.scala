@@ -1,92 +1,17 @@
-package transpiler.parser.ast
+package transpiler.js
 
 import scala.collection.mutable.ListBuffer
 
 
 case class ModelIR(name: String, parent: Option[String], traits: Seq[String], fields: Seq[FieldIR], methods: Seq[MethodIR])
 
-case class MethodIR(name: String, modifiers: List[ModifierIR], fields: ListBuffer[(String, String)], returnType: String, body: BlockIR)
+case class MethodIR(name: String, modifiers: List[ModifierIR], fields: ListBuffer[(String, String)], returnType: String, body: BlockIR) extends StatementIR
 
 trait BlockIR extends StatementIR
 
 case class InlineIR(expression: ExpressionIR) extends BlockIR
 
 case class DoBlockIR(statements: List[StatementIR]) extends BlockIR
-
-
-trait ExpressionIR
-
-case class ArrayValueIR(expressionIRs: Seq[ExpressionIR]) extends ExpressionIR
-
-case class PrintlnIR( name: String, expressions: Seq[ExpressionIR]) extends ExpressionIR
-
-case class MethodCallIR( name: String, expressions: Seq[ExpressionIR]) extends ExpressionIR
-
-case class DoubleConstIR(value: BigDecimal) extends ExpressionIR
-
-case class FloatConstIR(value: BigDecimal) extends ExpressionIR
-
-case class IdentifierIR(name: String, `type`: TypeIR) extends ExpressionIR
-
-case class IntConstIR(value: BigInt) extends ExpressionIR
-
-case class LongConstIR(value: BigInt) extends ExpressionIR
-
-case class StringLiteralIR(value: String) extends ExpressionIR
-
-case class RBinaryIR(operatorIR: RelationalOperatorIR, expressionIR1: ExpressionIR, expressionIR2: ExpressionIR) extends ExpressionIR
-
-trait StatementIR
-
-case class FieldIR(name: String, `type`: String, init: Option[StatementIR])
-
-case class AssignIR(id: String, immutable: Boolean, block: BlockIR) extends StatementIR
-
-case class ExprAsStmtIR(expressionIR: ExpressionIR) extends StatementIR
-
-case class IfStatementIR(condition: ExpressionIR, isStmt: StatementIR, elseStmt: Option[StatementIR]) extends StatementIR
-
-case class ForIR(identifierIR: IdentifierIR, expressionIR: ExpressionIR, blockIR: BlockIR) extends StatementIR
-
-case class LabelIR(id: Int) extends StatementIR
-
-case class VisitLabelIR(id: Int) extends StatementIR
-
-trait TypeIR {
-  val classLoc: String
-}
-
-case class IntType() extends TypeIR {
-  override val classLoc: String = "java/lang/Integer"
-}
-
-case class LongType() extends TypeIR {
-  override val classLoc: String = "java/lang/Long"
-}
-
-case class FloatType() extends TypeIR {
-  override val classLoc: String = "java/lang/Float"
-}
-
-case class DoubleType() extends TypeIR {
-  override val classLoc: String = "java/lang/Double"
-}
-
-case class StringLiteralType() extends TypeIR {
-  override val classLoc: String = "java/lang/String"
-}
-
-case class ObjectType(name: String) extends TypeIR {
-  override val classLoc: String = name
-}
-
-case class UnitType() extends TypeIR {
-  override val classLoc: String = null
-}
-
-case class UnknownType() extends TypeIR {
-  override val classLoc: String = null
-}
 
 trait RelationalOperatorIR extends StatementIR
 

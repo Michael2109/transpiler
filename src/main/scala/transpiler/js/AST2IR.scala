@@ -1,4 +1,6 @@
-package transpiler.parser.ast
+package transpiler.js
+
+import transpiler.parser.ast.{Abstract, ArrayValue, Assign, Block, CurlyBracketsBlock, Equal, ExprAsStmt, Expression, Field, Final, For, Greater, GreaterEqual, Identifier, If, Inline, IntConst, Less, LessEqual, Method, MethodCall, Model, Module, PackageLocal, Private, Protected, Pure, RBinOp, RBinary, RefLocal, RefQual, Statement, StringLiteral}
 
 import scala.collection.mutable.ListBuffer
 
@@ -109,7 +111,7 @@ object AST2IR {
   }
 
   def identifierToIR(identifier: Identifier): IdentifierIR = {
-    IdentifierIR(identifier.name.value, null)
+    IdentifierIR(identifier.name.value)
   }
 
 

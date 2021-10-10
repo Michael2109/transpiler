@@ -15,12 +15,12 @@ class MethodParserTest extends AnyFunSpec with Matchers {
     it("Should parse method definitions with no fields") {
 
       val Parsed.Success(value, _) = parse("let exampleMethod () Int = { a }", StatementParser.statementParser(_))
-      value shouldBe Method(Name("exampleMethod"),List(),ArrayBuffer(),ArrayBuffer(),Some(Type(RefLocal(Name("Int")))),CurlyBracketsBlock(ArrayBuffer(ExprAsStmt(Identifier(Name("a"))))))
-      }
+      value shouldBe Method(Name("exampleMethod"), List(), ArrayBuffer(), ArrayBuffer(), Some(Type(RefLocal(Name("Int")))), CurlyBracketsBlock(ArrayBuffer(ExprAsStmt(Identifier(Name("a"))))))
+    }
 
     it("Should parse method definitions with multiple fields") {
       val Parsed.Success(value, _) = parse("let exampleMethod (a: Int, b: Int) Int = { a }", StatementParser.statementParser(_))
-     value shouldBe Method(Name("exampleMethod"),List(),ArrayBuffer(Field(Name("a"),Type(RefLocal(Name("Int"))),None), Field(Name("b"),Type(RefLocal(Name("Int"))),None)),ArrayBuffer(),Some(Type(RefLocal(Name("Int")))),CurlyBracketsBlock(ArrayBuffer(ExprAsStmt(Identifier(Name("a"))))))
+      value shouldBe Method(Name("exampleMethod"), List(), ArrayBuffer(Parameter(Name("a"), Type(RefLocal(Name("Int"))), None), Parameter(Name("b"), Type(RefLocal(Name("Int"))), None)), ArrayBuffer(), Some(Type(RefLocal(Name("Int")))), CurlyBracketsBlock(ArrayBuffer(ExprAsStmt(Identifier(Name("a"))))))
     }
 
     it("Should parse method definitions with a do block") {
@@ -30,7 +30,7 @@ class MethodParserTest extends AnyFunSpec with Matchers {
           |}
         """.stripMargin.replace("\r", "")
       val Parsed.Success(value, _) = parse(code, StatementParser.statementParser(_))
-    value shouldBe Method(Name("exampleMethod"), List(), ArrayBuffer(), List(), Some(Type(RefLocal(Name("Int")))), CurlyBracketsBlock(ArrayBuffer(ExprAsStmt(IntConst(1)))))
+      value shouldBe Method(Name("exampleMethod"), List(), ArrayBuffer(), List(), Some(Type(RefLocal(Name("Int")))), CurlyBracketsBlock(ArrayBuffer(ExprAsStmt(IntConst(1)))))
     }
 
     it("Should parse method definitions with nested methods") {
@@ -43,7 +43,7 @@ class MethodParserTest extends AnyFunSpec with Matchers {
           | }
         """.stripMargin.replace("\r", "")
       val Parsed.Success(value, _) = parse(code, StatementParser.statementParser(_))
-     value shouldBe Method(Name("outerMethod"), List(), ArrayBuffer(), ArrayBuffer(), Some(Type(RefLocal(Name("Int")))), CurlyBracketsBlock(ArrayBuffer(Method(Name("innerMethod"), List(), ArrayBuffer(), ArrayBuffer(), Some(Type(RefLocal(Name("Int")))), CurlyBracketsBlock(ArrayBuffer(ExprAsStmt(Identifier(Name("i")))))), ExprAsStmt(Identifier(Name("j"))))))
+      value shouldBe Method(Name("outerMethod"), List(), ArrayBuffer(), ArrayBuffer(), Some(Type(RefLocal(Name("Int")))), CurlyBracketsBlock(ArrayBuffer(Method(Name("innerMethod"), List(), ArrayBuffer(), ArrayBuffer(), Some(Type(RefLocal(Name("Int")))), CurlyBracketsBlock(ArrayBuffer(ExprAsStmt(Identifier(Name("i")))))), ExprAsStmt(Identifier(Name("j"))))))
     }
 
     it("Should parse method definitions with multiple statements") {
@@ -59,7 +59,7 @@ class MethodParserTest extends AnyFunSpec with Matchers {
           |}
         """.stripMargin.replace("\r", "")
       val Parsed.Success(value, _) = parse(code, StatementParser.statementParser(_))
-     value shouldBe Method(Name("method"),List(),ArrayBuffer(),ArrayBuffer(),Some(Type(RefLocal(Name("Int")))),CurlyBracketsBlock(ArrayBuffer(If(BoolConst(true),CurlyBracketsBlock(ArrayBuffer(ExprAsStmt(IntConst(1)))),Some(CurlyBracketsBlock(ArrayBuffer(ExprAsStmt(IntConst(2)))))), Assign(Name("y"),None,true,Inline(IntConst(10))))))
+      value shouldBe Method(Name("method"), List(), ArrayBuffer(), ArrayBuffer(), Some(Type(RefLocal(Name("Int")))), CurlyBracketsBlock(ArrayBuffer(If(BoolConst(true), CurlyBracketsBlock(ArrayBuffer(ExprAsStmt(IntConst(1)))), Some(CurlyBracketsBlock(ArrayBuffer(ExprAsStmt(IntConst(2)))))), Assign(Name("y"), None, true, Inline(IntConst(10))))))
     }
 
     it("Should parse method definitions with method calls") {
@@ -70,7 +70,7 @@ class MethodParserTest extends AnyFunSpec with Matchers {
           |}
         """.stripMargin.replace("\r", "")
       val Parsed.Success(value, _) = parse(code, StatementParser.statementParser(_))
-     value shouldBe Method(Name("method"), List(), ArrayBuffer(), ArrayBuffer(), Some(Type(RefLocal(Name("Int")))), CurlyBracketsBlock(ArrayBuffer(Assign(Name("y"), None, true, Inline(IntConst(1))), ExprAsStmt(MethodCall(Name("println"), ArrayBuffer(Identifier(Name("y"))))))))
+      value shouldBe Method(Name("method"), List(), ArrayBuffer(), ArrayBuffer(), Some(Type(RefLocal(Name("Int")))), CurlyBracketsBlock(ArrayBuffer(Assign(Name("y"), None, true, Inline(IntConst(1))), ExprAsStmt(MethodCall(Name("println"), ArrayBuffer(Identifier(Name("y"))))))))
     }
 
     it("Should parse method definitions with modifiers") {
@@ -78,7 +78,7 @@ class MethodParserTest extends AnyFunSpec with Matchers {
         """protected private abstract let method() Int = { 1 }
         """.stripMargin.replace("\r", "")
       val Parsed.Success(value, _) = parse(code, StatementParser.statementParser(_))
-      value shouldBe Method(Name("method"),List(),ArrayBuffer(),ArrayBuffer(Protected, Private, Abstract),Some(Type(RefLocal(Name("Int")))),CurlyBracketsBlock(ArrayBuffer(ExprAsStmt(IntConst(1)))))
+      value shouldBe Method(Name("method"), List(), ArrayBuffer(), ArrayBuffer(Protected, Private, Abstract), Some(Type(RefLocal(Name("Int")))), CurlyBracketsBlock(ArrayBuffer(ExprAsStmt(IntConst(1)))))
     }
   }
 }
