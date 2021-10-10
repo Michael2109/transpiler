@@ -8,17 +8,13 @@ object CodeGen {
 
     val sb: StringBuilder = new StringBuilder()
 
-    model match {
-      case classModel: ClassModelIR => {
+    sb.append(s"class ${model.name} {")
 
-        sb.append(s"class ${classModel.name} {")
+    //  classModel.externalStatements.foreach(v => genCode(stringBuilder, v))
+    sb.append(model.methods.map(m => genCode(m)).mkString)
 
-        //  classModel.externalStatements.foreach(v => genCode(stringBuilder, v))
-        sb.append(classModel.methods.map(m => genCode(m)).mkString)
+    sb.append("};")
 
-        sb.append("};")
-      }
-    }
 
     sb.toString()
   }
@@ -50,7 +46,7 @@ object CodeGen {
   def genCode(expression: ExpressionIR, method: MethodIR): String = {
 
     expression match {
-      case ArrayValueIR(expressionIRs) =>"[" +  expressionIRs.map(expression => genCode(expression, method)).mkString(",") + "]"
+      case ArrayValueIR(expressionIRs) => "[" + expressionIRs.map(expression => genCode(expression, method)).mkString(",") + "]"
       case identifier: IdentifierIR => identifierGenCode(identifier)
       case doubleConst: DoubleConstIR => doubleConst.value.toString
       case floatConst: FloatConstIR => floatConst.value.toString
@@ -58,8 +54,8 @@ object CodeGen {
       case longConst: LongConstIR => longConst.value.toString
       case stringLiteral: StringLiteralIR => "\"" + stringLiteral.value + "\""
       case rBinaryIR: RBinaryIR => genCode(rBinaryIR.expressionIR1, method) + genCode(rBinaryIR.operatorIR, method) + genCode(rBinaryIR.expressionIR2, method)
-      case PrintlnIR(name, expressions) => "console.log(" + expressions.map(expression => genCode(expression, method)).mkString(",")+  ")"
-      case MethodCallIR(name, expressions) => name + "(" + expressions.map(expression => genCode(expression, method)).mkString(",")+  ")"
+      case PrintlnIR(name, expressions) => "console.log(" + expressions.map(expression => genCode(expression, method)).mkString(",") + ")"
+      case MethodCallIR(name, expressions) => name + "(" + expressions.map(expression => genCode(expression, method)).mkString(",") + ")"
     }
   }
 
@@ -110,7 +106,7 @@ object CodeGen {
         sb.append("){")
         sb.append(genCode(isStmt, method))
         sb.append("}")
-        if(elseStmt.isDefined) {
+        if (elseStmt.isDefined) {
           sb.append("else{")
           sb.append(genCode(elseStmt.get, method))
           sb.append("}")

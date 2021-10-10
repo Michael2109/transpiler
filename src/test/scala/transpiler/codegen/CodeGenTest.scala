@@ -20,6 +20,9 @@ class CodeGenTest extends AnyFunSpec with Matchers {
       val code =
         """package x.y.zS
           |class ClassName {
+          |
+          |  let variable: Int = 1000
+          |
           |  let x() Int ={
           |    let y = 10
           |    let array = []
@@ -36,7 +39,7 @@ class CodeGenTest extends AnyFunSpec with Matchers {
 
       println(ast)
       // Process AST
-      val modelIRs: Seq[ModelIR] = Array(ast).map(x => AST2IR.astToIR(x)).head
+      val modelIRs: Seq[ModelIR] = Array(ast).map(x => AST2IR.moduleToIR(x)).head
 
       println(modelIRs)
 
@@ -56,6 +59,7 @@ class CodeGenTest extends AnyFunSpec with Matchers {
       val functionNode = parser.parse();
       val block = functionNode.getBody();
       val statements = block.getStatements();
+
 
       println(block)
       println(statements)

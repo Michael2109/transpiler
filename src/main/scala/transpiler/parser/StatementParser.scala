@@ -6,7 +6,7 @@ import transpiler.parser.ast._
 
 object StatementParser extends ExpressionParser {
 
-  def accessModifier[_: P]: P[Modifier] = P("protected").map(_ => Protected) | P("private").map(_ => Private) | P("local").map(_ => PackageLocal) |  P("final").map(_ => Final)
+  def accessModifier[_: P]: P[Modifier] = P("protected").map(_ => Protected) | P("private").map(_ => Private) | P("local").map(_ => PackageLocal) | P("final").map(_ => Final)
 
   def typeModifier[_: P]: P[Modifier] = P("mutable").map(_ => Final) | P("abstract").map(_ => Abstract) | P("pure").map(_ => Pure)
 
@@ -35,7 +35,7 @@ object StatementParser extends ExpressionParser {
 
   def importParser[_: P]: P[Import] = P("import" ~/ nameParser.rep(sep = ".")).map(Import)
 
-  def fieldParser[_: P]: P[Field] = P(nameParser ~ ":" ~ typeRefParser).map(x => Field(x._1, x._2, None))
+  def fieldParser[_: P]: P[Field] = P("let" ~ nameParser ~ ":" ~ typeRefParser ~ ("=" ~ statementParser).?).map(x => Field(x._1, x._2, x._3))
 
   def methodParser[_: P]: P[Statement] = P(modifiers ~ "let" ~ nameParser ~ "(" ~/ fieldParser.rep(sep = ",") ~/ ")" ~/ (typeRefParser).? ~/ "=" ~ blockParser).map(x => Method(x._2, Seq(), x._3, x._1, x._4, x._5))
 
@@ -47,7 +47,7 @@ object StatementParser extends ExpressionParser {
 
   def objectModelTypeParser[_: P]: P[ModelType] = P("object").map(_ => ObjectModelType)
 
-  def modelParser[_: P]: P[Model] = P(modelTypeParser ~/ nameParser ~ ("extends" ~ typeRefParser).? ~ ("with" ~ typeRefParser).rep() ~ curlyBracketsBlock).map(x => Model(x._1, x._2, Seq(), Seq(), x._3, Seq(), x._4, x._5.statement))
+  def modelParser[_: P]: P[Model] = P(modelTypeParser ~/ nameParser ~ ("extends" ~ typeRefParser).? ~ ("with" ~ typeRefParser).rep() ~ modelContentBlock).map(x => Model(x._1, x._2, Seq(), x._3, Seq(), x._4, x._5))
 
   def fileParser[_: P]: P[Module] = P(packageParser ~ importParser.rep ~ modelParser.rep).map(x => Module(ModuleHeader(x._1, x._2), x._3))
 
@@ -57,13 +57,12 @@ object StatementParser extends ExpressionParser {
 
   def statementParser[_: P]: P[Statement] = P(modelParser | ifStatementParser | forLoopParser | methodParser | assignParser | reassignParser | exprAsStmt)
 
-  def curlyBracketsBlock[_: P]: P[CurlyBracketsBlock] = {
-    P("{" ~/ LexicalParser.Newline.? ~ componentValue.rep ~ "}" ~ LexicalParser.space).map(x => CurlyBracketsBlock(x.filter(_.isDefined).map(_.get)))
+  def modelContentBlock[_: P]: P[Seq[Statement]] = {
+    P("{" ~/ LexicalParser.Newline.? ~ P((fieldParser | methodParser).map(Some(_)) | LexicalParser.Newline.map(_ => None)).rep ~ "}" ~ LexicalParser.space).map(x => x.filter(_.isDefined).map(_.get))
   }
 
-  def componentValue[_: P]: P[Option[Statement]] = {
-    //  def blockOpt = P( curlyBracketsBlock  ).map(Some(_))
-    P(statementParser.map(Some(_)) | LexicalParser.Newline.map(_ => None))
+  def curlyBracketsBlock[_: P]: P[CurlyBracketsBlock] = {
+    P("{" ~/ LexicalParser.Newline.? ~ P(statementParser.map(Some(_)) | LexicalParser.Newline.map(_ => None)).rep ~ "}" ~ LexicalParser.space).map(x => CurlyBracketsBlock(x.filter(_.isDefined).map(_.get)))
   }
 
   private def ifParser[_: P]: P[(Expression, Statement)] = P("if" ~/ expressionParser ~ blockParser).map(x => (x._1, x._2))

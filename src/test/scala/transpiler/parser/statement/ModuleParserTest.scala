@@ -42,7 +42,7 @@ class ModuleParserTest extends AnyFunSpec with Matchers {
           |}
         """.stripMargin.replace("\r", "")
       val Parsed.Success(value, _) = parse(code, StatementParser.fileParser(_))
-      value shouldBe Module(ModuleHeader(Package(ArrayBuffer(Name("a"), Name("b"), Name("c"))),ArrayBuffer(Import(ArrayBuffer(Name("x"), Name("y"), Name("z"))))),ArrayBuffer(Model(ClassModelType,Name("A"),List(),List(),None,List(),ArrayBuffer(),ArrayBuffer())))
+      value shouldBe Module(ModuleHeader(Package(ArrayBuffer(Name("a"), Name("b"), Name("c"))),ArrayBuffer(Import(ArrayBuffer(Name("x"), Name("y"), Name("z"))))),ArrayBuffer(Model(ClassModelType,Name("A"),List(),None,List(),ArrayBuffer(),ArrayBuffer())))
     }
 
     it("Should parse a module - Multiple classes") {
@@ -56,7 +56,7 @@ class ModuleParserTest extends AnyFunSpec with Matchers {
           |class C {}
         """.stripMargin.replace("\r", "")
       val Parsed.Success(value, _) = parse(code, StatementParser.fileParser(_))
-      value shouldBe Module(ModuleHeader(Package(ArrayBuffer(Name("a"), Name("b"), Name("c"))),ArrayBuffer(Import(ArrayBuffer(Name("x"), Name("y"), Name("z"))))),ArrayBuffer(Model(ClassModelType,Name("A"),List(),List(),None,List(),ArrayBuffer(),ArrayBuffer()),Model(ClassModelType,Name("B"),List(),List(),None,List(),ArrayBuffer(),ArrayBuffer()),Model(ClassModelType,Name("C"),List(),List(),None,List(),ArrayBuffer(),ArrayBuffer())))
+      value shouldBe Module(ModuleHeader(Package(ArrayBuffer(Name("a"), Name("b"), Name("c"))),ArrayBuffer(Import(ArrayBuffer(Name("x"), Name("y"), Name("z"))))),ArrayBuffer(Model(ClassModelType,Name("A"),List(),None,List(),ArrayBuffer(),ArrayBuffer()),Model(ClassModelType,Name("B"),List(),None,List(),ArrayBuffer(),ArrayBuffer()),Model(ClassModelType,Name("C"),List(),None,List(),ArrayBuffer(),ArrayBuffer())))
     }
 
     it("Should parse a module - class with nested content") {
@@ -73,7 +73,7 @@ class ModuleParserTest extends AnyFunSpec with Matchers {
           |}
         """.stripMargin.replace("\r", "")
       val Parsed.Success(value, _) = parse(code, StatementParser.fileParser(_))
-      value shouldBe Module(ModuleHeader(Package(ArrayBuffer(Name("a"), Name("b"), Name("c"))),ArrayBuffer(Import(ArrayBuffer(Name("x"), Name("y"), Name("z"))))),ArrayBuffer(Model(ClassModelType,Name("Test"),List(),List(),None,List(),ArrayBuffer(),ArrayBuffer(Assign(Name("x"),None,true,Inline(IntConst(10))), Method(Name("exampleMethod"),List(),ArrayBuffer(),ArrayBuffer(),Some(Type(RefLocal(Name("Int")))),CurlyBracketsBlock(ArrayBuffer(ExprAsStmt(IntConst(1)))))))))
+      value shouldBe Module(ModuleHeader(Package(ArrayBuffer(Name("a"), Name("b"), Name("c"))),ArrayBuffer(Import(ArrayBuffer(Name("x"), Name("y"), Name("z"))))),ArrayBuffer(Model(ClassModelType,Name("Test"),List(),None,List(),ArrayBuffer(),ArrayBuffer(Assign(Name("x"),None,true,Inline(IntConst(10))), Method(Name("exampleMethod"),List(),ArrayBuffer(),ArrayBuffer(),Some(Type(RefLocal(Name("Int")))),CurlyBracketsBlock(ArrayBuffer(ExprAsStmt(IntConst(1)))))))))
     }
   }
 }

@@ -7,8 +7,6 @@ case class ModuleHeader(nameSpace: Package, imports: Seq[Import])
 
 case class Import(loc: Seq[Name])
 
-case class Field(name: Name, `type`: Type, init: Option[Type])
-
 case class Type(ref: Ref)
 
 case class Package(nameSpace: Seq[Name])

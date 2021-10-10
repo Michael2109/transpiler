@@ -6,9 +6,11 @@ trait Block extends Statement
 
 case class Inline(expression: Expression) extends Block
 
-case class CurlyBracketsBlock(statement: Seq[Statement]) extends Block
+case class CurlyBracketsBlock(statements: Seq[Statement]) extends Block
 
-case class Model(modelType: ModelType, name: Name, modifiers: Seq[Modifier], fields: Seq[Field], parent: Option[Type], parentArguments: Seq[Expression], interfaces: Seq[Type], body: Seq[Statement]) extends Statement
+case class Model(modelType: ModelType, name: Name, modifiers: Seq[Modifier], parent: Option[Type], parentArguments: Seq[Expression], interfaces: Seq[Type], body: Seq[Statement]) extends Statement
+
+case class Field(name: Name, `type`: Type, init: Option[Statement]) extends Statement
 
 case class Method(name: Name, annotations: Seq[Annotation], fields: Seq[Field], modifiers: Seq[Modifier], returnType: Option[Type], body: Block) extends Statement
 

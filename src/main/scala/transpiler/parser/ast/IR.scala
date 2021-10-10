@@ -3,26 +3,9 @@ package transpiler.parser.ast
 import scala.collection.mutable.ListBuffer
 
 
-trait ModelIR
+case class ModelIR(name: String, parent: Option[String], traits: Seq[String], fields: Seq[FieldIR], methods: Seq[MethodIR])
 
-case class ClassModelIR(nameSpace: String, name: String, parent: String) extends ModelIR {
-
-  val traits: ListBuffer[String] = ListBuffer[String]()
-  val externalStatements: ListBuffer[StatementIR] = ListBuffer[StatementIR]()
-  val methods: ListBuffer[MethodIR] = ListBuffer[MethodIR]()
-  val imports: Map[String, String] = Map[String, String]()
-
-  private var nextVarId = 0
-
-  def getNextVarId(): Int = {
-    val id = nextVarId
-    nextVarId += 1
-    return id
-  }
-}
-
-case class MethodIR(name: String, modifiers: List[ModifierIR], fields: ListBuffer[(String, String)], returnType: String, body: BlockIR) {}
-
+case class MethodIR(name: String, modifiers: List[ModifierIR], fields: ListBuffer[(String, String)], returnType: String, body: BlockIR)
 
 trait BlockIR extends StatementIR
 
@@ -54,6 +37,8 @@ case class StringLiteralIR(value: String) extends ExpressionIR
 case class RBinaryIR(operatorIR: RelationalOperatorIR, expressionIR1: ExpressionIR, expressionIR2: ExpressionIR) extends ExpressionIR
 
 trait StatementIR
+
+case class FieldIR(name: String, `type`: String, init: Option[StatementIR])
 
 case class AssignIR(id: String, immutable: Boolean, block: BlockIR) extends StatementIR
 

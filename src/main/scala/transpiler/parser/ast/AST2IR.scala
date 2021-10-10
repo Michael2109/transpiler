@@ -1,146 +1,133 @@
 package transpiler.parser.ast
 
-import transpiler.symbol_table.{ClassEntry, SymbolTable}
-
 import scala.collection.mutable.ListBuffer
 
 object AST2IR {
 
-  def astToIR(module: Module): Seq[ModelIR] = {
-    module.models.map(model => {
+  def moduleToIR(module: Module): Seq[ModelIR] = {
+    module.models.map(model => modelToIR(model, module))
+  }
 
+  def modelToIR(model: Model, module: Module): ModelIR = {
 
-      val imports: Map[String, String] = module.header.imports.map(i => i.loc.last.value -> i.loc.map(_.value).mkString("/")).toMap[String, String]
+    // TODO Remove imports if not needed?
+    val imports: Map[String, String] = module.header.imports.map(i => i.loc.last.value -> i.loc.map(_.value).mkString("/")).toMap[String, String]
 
-      val superClass: String = model.parent match {
-        case Some(value) => value.ref match {
-          case RefLocal(name) => imports.get(name.value).get
-          case RefQual(qualName) => qualName.nameSpace.nameSpace.map(_.value).mkString("/") + "/" + qualName.name.value
-        }
-        case None => "java/lang/Object"
+    val superClass: Option[String] = model.parent match {
+      case Some(value) => value.ref match {
+        case RefLocal(name) => Option(imports.get(name.value).get)
+        case RefQual(qualName) => Option(qualName.nameSpace.nameSpace.map(_.value).mkString("/") + "/" + qualName.name.value)
       }
+      case None => None
+    }
 
-      val interfaces: Array[String] = model.interfaces.map(i => {
-        i.ref match {
-          case refLocal: RefLocal => imports(refLocal.name.value)
-          case refQual: RefQual => refQual.qualName.nameSpace.nameSpace.map(_.value).mkString("/") + "/" + refQual.qualName.name.value
-        }
-      }).toArray
-
-      val classModelIR = ClassModelIR(module.header.nameSpace.nameSpace.map(_.value).mkString("/"), model.name.value, superClass)
-
-      // classModelIR.externalStatements += Visit(Opcodes.V1_8, Opcodes.ACC_PUBLIC | Opcodes.ACC_SUPER, module.header.nameSpace.nameSpace.map(_.value).mkString("/") + "/" + classModel.name.value, null, superClass, interfaces)
-
-      val classSymbolTable: SymbolTable = new ClassEntry("")
-      model.body.foreach(s => {
-        convertToIR(s, classModelIR, classSymbolTable, imports)
-      })
-
-      addConstructor(classModelIR, superClass)
-      classModelIR
+    val traits: Seq[String] = model.interfaces.map(i => {
+      i.ref match {
+        case refLocal: RefLocal => imports(refLocal.name.value)
+        case refQual: RefQual => refQual.qualName.nameSpace.nameSpace.map(_.value).mkString("/") + "/" + refQual.qualName.name.value
+      }
     })
 
+    val (fields, methods) = model.body.partition(_.isInstanceOf[Field])
+
+    val fieldsIR = fields.map(_.asInstanceOf[Field]).map(fieldToIr)
+    val methodsIR = methods.map(_.asInstanceOf[Method]).map(methodToIR)
+
+    val classModelIR = ModelIR(model.name.value, superClass, traits, fieldsIR, methodsIR)
+
+    classModelIR
   }
 
-  def addConstructor(model: ClassModelIR, superClass: String): Unit = {
-
+  def fieldToIr(field: Field): FieldIR = {
+    FieldIR(field.name.value, field.`type`.ref.toString, field.init.map(statementToIR).headOption)
   }
 
-  def constructorExists(): Boolean = {
-    return false
-  }
-
-  def convertToIR(statement: Statement, model: ClassModelIR, symbolTable: SymbolTable, imports: Map[String, String]): Unit = {
-    statement match {
-      case method: Method => model.methods += convertToIR(method, symbolTable, imports)
-    }
-  }
-
-  def convertToIR(method: Method, symbolTable: SymbolTable, imports: Map[String, String]): MethodIR = {
+  def methodToIR(method: Method): MethodIR = {
 
     // name: String, modifiers: mutable.SortedSet[String], fields: ListBuffer[(String, String)], returnType: String, body: ListBuffer[StatementIR]
-    val modifiers: List[ModifierIR] = method.modifiers.map(modifier => modifier match {
+    val modifiers: List[ModifierIR] = method.modifiers.map {
       case Private => PrivateIR()
       case Protected => ProtectedIR()
       case Final => FinalIR()
       case Pure => PureIR()
       case PackageLocal => PackageLocalIR()
       case Abstract => AbstractIR()
-    }).toList
+    }.toList
 
     // val fields = method.fields.map(field => field.)
 
     //  val returnType = method.returnType.map(rT => rT.ref)
 
-    MethodIR(method.name.value, modifiers, ListBuffer(), "void", blockToIR(method.body, symbolTable, imports))
+    MethodIR(method.name.value, modifiers, ListBuffer(), "void", blockToIR(method.body))
   }
 
 
-  def blockToIR(block: Block, symbolTable: SymbolTable, imports: Map[String, String]): BlockIR = {
+  def blockToIR(block: Block): BlockIR = {
     block match {
-      case inline: Inline => inlineToIR(inline, symbolTable, imports)
-      case doBlock: CurlyBracketsBlock => doBlockToIR(doBlock, symbolTable, imports)
+      case inline: Inline => inlineToIR(inline)
+      case doBlock: CurlyBracketsBlock => doBlockToIR(doBlock)
     }
 
   }
 
-  def inlineToIR(inline: Inline, symbolTable: SymbolTable, imports: Map[String, String]): InlineIR = {
-    val expressionIR = expressionToIR(inline.expression, symbolTable, imports)
+  def inlineToIR(inline: Inline): InlineIR = {
+    val expressionIR = expressionToIR(inline.expression)
     InlineIR(expressionIR)
   }
 
-  def doBlockToIR(doBlock: CurlyBracketsBlock, symbolTable: SymbolTable, imports: Map[String, String]): DoBlockIR = {
-    val statements = doBlock.statement.map(statement => {
-      statementToIR(statement, symbolTable, imports)
+  def doBlockToIR(doBlock: CurlyBracketsBlock): DoBlockIR = {
+    val statements = doBlock.statements.map(statement => {
+      statementToIR(statement)
     }).toList
     DoBlockIR(statements)
   }
 
-  def expressionToIR(expression: Expression, symbolTable: SymbolTable, imports: Map[String, String]): ExpressionIR = expression match {
-    case arrayValue: ArrayValue => ArrayValueIR(arrayValue.expressions.map(a => expressionToIR(a, symbolTable, imports)))
+  def expressionToIR(expression: Expression): ExpressionIR = expression match {
+    case arrayValue: ArrayValue => ArrayValueIR(arrayValue.expressions.map(a => expressionToIR(a)))
     case intConst: IntConst => IntConstIR(intConst.value)
     case stringLiteral: StringLiteral => StringLiteralIR(stringLiteral.value)
-    case identifier: Identifier => identifierToIR(identifier, symbolTable, imports)
-    case methodCall: MethodCall => methodCallToIR(methodCall, symbolTable, imports)
-    case rBinary: RBinary => RBinaryIR(relationalOpToIR(rBinary.op), expressionToIR(rBinary.expression1, symbolTable, imports), expressionToIR(rBinary.expression2, symbolTable, imports))
-  }
-  def relationalOpToIR(op: RBinOp): RelationalOperatorIR  = op match {
-    case  GreaterEqual => GreaterEqualIR
-    case Greater  => GreaterIR
-    case  LessEqual => LessEqualIR
-    case  Less => LessIR
-    case  Equal => EqualIR
+    case identifier: Identifier => identifierToIR(identifier)
+    case methodCall: MethodCall => methodCallToIR(methodCall)
+    case rBinary: RBinary => RBinaryIR(relationalOpToIR(rBinary.op), expressionToIR(rBinary.expression1), expressionToIR(rBinary.expression2))
   }
 
-  def methodCallToIR(methodCall: MethodCall, symbolTable: SymbolTable, imports: Map[String, String]): ExpressionIR ={
+  def relationalOpToIR(op: RBinOp): RelationalOperatorIR = op match {
+    case GreaterEqual => GreaterEqualIR
+    case Greater => GreaterIR
+    case LessEqual => LessEqualIR
+    case Less => LessIR
+    case Equal => EqualIR
+  }
 
-    if(methodCall.name.value == "println") {
-      PrintlnIR(methodCall.name.value, methodCall.expression.map(expression => expressionToIR(expression, symbolTable, imports)))
+  def methodCallToIR(methodCall: MethodCall): ExpressionIR = {
+
+    if (methodCall.name.value == "println") {
+      PrintlnIR(methodCall.name.value, methodCall.expression.map(expression => expressionToIR(expression)))
     } else {
-      MethodCallIR(methodCall.name.value, methodCall.expression.map(expression => expressionToIR(expression, symbolTable, imports)))
+      MethodCallIR(methodCall.name.value, methodCall.expression.map(expression => expressionToIR(expression)))
     }
   }
 
-  def identifierToIR(identifier: Identifier, symbolTable: SymbolTable, imports: Map[String, String]): IdentifierIR = {
+  def identifierToIR(identifier: Identifier): IdentifierIR = {
     IdentifierIR(identifier.name.value, null)
   }
 
 
-  def ifToIR(ifStatement: If, symbolTable: SymbolTable, imports: Map[String, String]): IfStatementIR = {
+  def ifToIR(ifStatement: If): IfStatementIR = {
     //  condition: ExpressionIR, isStmt: StatementIR, elseStmt: StatementIR
-    val elseBlock = if (ifStatement.elseBlock.isDefined) statementToIR(ifStatement.elseBlock.get, symbolTable, imports) else null
+    val elseBlock = if (ifStatement.elseBlock.isDefined) statementToIR(ifStatement.elseBlock.get) else null
 
-    IfStatementIR(expressionToIR(ifStatement.condition, symbolTable, imports), statementToIR(ifStatement.ifBlock, symbolTable, imports), Option(elseBlock))
+    IfStatementIR(expressionToIR(ifStatement.condition), statementToIR(ifStatement.ifBlock), Option(elseBlock))
     // IdentifierIR(identifier.name.value, null)
   }
 
-  def statementToIR(statement: Statement, symbolTable: SymbolTable, imports: Map[String, String]): StatementIR = {
+  def statementToIR(statement: Statement): StatementIR = {
     statement match {
-      case Assign(name, _, immutable, block) => AssignIR(name.value, immutable, blockToIR(block, symbolTable, imports))
-      case For(identifier, expression, block) => ForIR(identifierToIR(identifier, symbolTable, imports), expressionToIR(expression, symbolTable, imports), blockToIR(block, symbolTable, imports))
-      case ifStatement: If => ifToIR(ifStatement, symbolTable, imports)
-      case doBlock: CurlyBracketsBlock => doBlockToIR(doBlock, symbolTable, imports)
-      case exprAsStmt: ExprAsStmt => ExprAsStmtIR(expressionToIR(exprAsStmt.expression, symbolTable, imports))
+      case Assign(name, _, immutable, block) => AssignIR(name.value, immutable, blockToIR(block))
+      case For(identifier, expression, block) => ForIR(identifierToIR(identifier), expressionToIR(expression), blockToIR(block))
+      case ifStatement: If => ifToIR(ifStatement)
+      case doBlock: CurlyBracketsBlock => doBlockToIR(doBlock)
+      case exprAsStmt: ExprAsStmt => ExprAsStmtIR(expressionToIR(exprAsStmt.expression))
     }
   }
 }
