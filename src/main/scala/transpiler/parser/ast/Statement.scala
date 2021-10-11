@@ -37,3 +37,65 @@ case class ExprAsStmt(expression: Expression) extends Statement
 case class BlockStmt(statements: Seq[Statement]) extends Statement
 
 case class Match() extends Statement
+
+trait ModelType
+
+case object ClassModelType extends ModelType
+
+case object TraitModelType extends ModelType
+
+case object ObjectModelType extends ModelType
+
+trait Modifier
+
+case object Protected extends Modifier
+
+case object Private extends Modifier
+
+case object PackageLocal extends Modifier
+
+case object Abstract extends Modifier
+
+case object Final extends Modifier
+
+case object Pure extends Modifier
+
+case class Module(header: ModuleHeader, models: Seq[Model])
+
+case class ModuleHeader(nameSpace: Package, imports: Seq[Import])
+
+case class Import(loc: Seq[Name])
+
+case class Type(ref: Ref)
+
+case class Package(nameSpace: Seq[Name])
+
+case class Annotation(name: Name)
+
+
+case class Name(value: String)
+
+case class QualName(nameSpace: Package, name: Name)
+
+
+trait Ref
+
+case class RefSpecial(specialRef: SpecialRef) extends Ref
+
+case class RefLocal(name: Name) extends Ref
+
+case class RefQual(qualName: QualName) extends Ref
+
+trait SpecialRef
+
+case class Super() extends SpecialRef
+
+case class This() extends SpecialRef
+
+trait TypeRel
+
+case class Inherits() extends TypeRel
+
+case class Extends() extends TypeRel
+
+case class Equals() extends TypeRel

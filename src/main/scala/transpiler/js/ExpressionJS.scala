@@ -1,23 +1,46 @@
 package transpiler.js
 
-trait ExpressionIR
+trait ExpressionJS
 
-case class ArrayValueIR(expressionIRs: Seq[ExpressionIR]) extends ExpressionIR
+case class ArrayValueJS(expressionIRs: Seq[ExpressionJS]) extends ExpressionJS
 
-case class PrintlnIR( name: String, expressions: Seq[ExpressionIR]) extends ExpressionIR
+case class PrintLnJS(name: String, expressions: Seq[ExpressionJS]) extends ExpressionJS
 
-case class MethodCallIR( name: String, expressions: Seq[ExpressionIR]) extends ExpressionIR
+case class MethodCallJS(name: String, expressions: Seq[ExpressionJS]) extends ExpressionJS
 
-case class DoubleConstIR(value: BigDecimal) extends ExpressionIR
+case class DoubleConstJS(value: BigDecimal) extends ExpressionJS
 
-case class FloatConstIR(value: BigDecimal) extends ExpressionIR
+case class FloatConstJS(value: BigDecimal) extends ExpressionJS
 
-case class IdentifierIR(name: String) extends ExpressionIR
+case class IdentifierJS(name: String) extends ExpressionJS
 
-case class IntConstIR(value: BigInt) extends ExpressionIR
+case class IntConstJS(value: BigInt) extends ExpressionJS
 
-case class LongConstIR(value: BigInt) extends ExpressionIR
+case class LongConstJS(value: BigInt) extends ExpressionJS
 
-case class StringLiteralIR(value: String) extends ExpressionIR
+case class StringLiteralJS(value: String) extends ExpressionJS
 
-case class RBinaryIR(operatorIR: RelationalOperatorIR, expressionIR1: ExpressionIR, expressionIR2: ExpressionIR) extends ExpressionIR
+case class RBinaryJS(operatorJS: RelationalOperatorJS, expressionIR1: ExpressionJS, expressionIR2: ExpressionJS) extends ExpressionJS
+
+trait RelationalOperatorJS extends StatementJS
+
+case object GreaterEqualJS$ extends RelationalOperatorJS
+
+case object GreaterJS$ extends RelationalOperatorJS
+
+case object LessEqualJS$ extends RelationalOperatorJS
+
+case object LessJS$ extends RelationalOperatorJS
+
+case object EqualJS$ extends RelationalOperatorJS
+
+trait ArithmeticOperatorJS extends StatementJS
+
+case object AddJS extends ArithmeticOperatorJS
+
+case object SubJS extends ArithmeticOperatorJS
+
+case object MulJS extends ArithmeticOperatorJS
+
+case object DivJS extends ArithmeticOperatorJS
+

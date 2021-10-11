@@ -9,10 +9,10 @@ import jdk.nashorn.internal.runtime.Context
 import jdk.nashorn.internal.runtime.ErrorManager
 import jdk.nashorn.internal.runtime.options.Options
 import jdk.nashorn.internal.runtime.Source
-import transpiler.js.{AST2IR, ModelIR}
+import transpiler.js.{AST2JS, ModelJS}
 
 
-class CodeGenTest extends AnyFunSpec with Matchers {
+class StatementCodeGenTest extends AnyFunSpec with Matchers {
   describe("Model parser") {
     it("Should parse a model with no fields") {
       val code =
@@ -37,11 +37,11 @@ class CodeGenTest extends AnyFunSpec with Matchers {
 
       println(ast)
       // Process AST
-      val modelIRs: Seq[ModelIR] = Array(ast).map(x => AST2IR.moduleToIR(x)).head
+      val modelIRs: Seq[ModelJS] = Array(ast).map(x => AST2JS.moduleToIR(x)).head
 
       println(modelIRs)
 
-      val compiledCode: List[String] = modelIRs.map(CodeGen.genModelCode).toList
+      val compiledCode: List[String] = modelIRs.map(StatementCodeGen.modelGenCode).toList
       println(compiledCode.head)
 
       val options = new Options("nashorn");

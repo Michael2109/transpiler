@@ -4,13 +4,13 @@ import transpiler.parser.ast.{Abstract, ArrayValue, Assign, Block, CurlyBrackets
 
 import scala.collection.mutable.ListBuffer
 
-object AST2IR {
+object AST2JS {
 
-  def moduleToIR(module: Module): Seq[ModelIR] = {
+  def moduleToIR(module: Module): Seq[ModelJS] = {
     module.models.map(model => modelToIR(model, module))
   }
 
-  def modelToIR(model: Model, module: Module): ModelIR = {
+  def modelToIR(model: Model, module: Module): ModelJS = {
 
     // TODO Remove imports if not needed?
     val imports: Map[String, String] = module.header.imports.map(i => i.loc.last.value -> i.loc.map(_.value).mkString("/")).toMap[String, String]
@@ -35,36 +35,35 @@ object AST2IR {
     val fieldsIR = fields.map(_.asInstanceOf[Field]).map(fieldToIr)
     val methodsIR = methods.map(_.asInstanceOf[Method]).map(methodToIR)
 
-    val classModelIR = ModelIR(model.name.value, superClass, traits, fieldsIR, methodsIR)
+    val classModelIR = ModelJS(model.name.value, superClass, traits, fieldsIR, methodsIR)
 
     classModelIR
   }
 
-  def fieldToIr(field: Field): FieldIR = {
-    FieldIR(field.name.value, field.`type`.ref.toString, field.init.map(statementToIR).headOption)
+  def fieldToIr(field: Field): FieldJS = {
+    FieldJS(field.name.value, field.`type`.ref.toString, field.init.map(statementToIR).headOption)
   }
 
-  def methodToIR(method: Method): MethodIR = {
+  def methodToIR(method: Method): MethodJS = {
 
     // name: String, modifiers: mutable.SortedSet[String], fields: ListBuffer[(String, String)], returnType: String, body: ListBuffer[StatementIR]
-    val modifiers: List[ModifierIR] = method.modifiers.map {
-      case Private => PrivateIR()
-      case Protected => ProtectedIR()
-      case Final => FinalIR()
-      case Pure => PureIR()
-      case PackageLocal => PackageLocalIR()
-      case Abstract => AbstractIR()
+    val modifiers: List[ModifierJS] = method.modifiers.map {
+      case Private => PrivateJS()
+      case Protected => ProtectedJS()
+      case Final => FinalJS()
+      case PackageLocal => PackageLocalJS()
+      case Abstract => AbstractJS()
     }.toList
 
     // val fields = method.fields.map(field => field.)
 
     //  val returnType = method.returnType.map(rT => rT.ref)
 
-    MethodIR(method.name.value, modifiers, ListBuffer(), "void", blockToIR(method.body))
+    MethodJS(method.name.value, modifiers, ListBuffer(), "void", blockToIR(method.body))
   }
 
 
-  def blockToIR(block: Block): BlockIR = {
+  def blockToIR(block: Block): BlockJS = {
     block match {
       case inline: Inline => inlineToIR(inline)
       case doBlock: CurlyBracketsBlock => doBlockToIR(doBlock)
@@ -72,64 +71,64 @@ object AST2IR {
 
   }
 
-  def inlineToIR(inline: Inline): InlineIR = {
+  def inlineToIR(inline: Inline): InlineJS = {
     val expressionIR = expressionToIR(inline.expression)
-    InlineIR(expressionIR)
+    InlineJS(expressionIR)
   }
 
-  def doBlockToIR(doBlock: CurlyBracketsBlock): DoBlockIR = {
+  def doBlockToIR(doBlock: CurlyBracketsBlock): DoBlockJS = {
     val statements = doBlock.statements.map(statement => {
       statementToIR(statement)
     }).toList
-    DoBlockIR(statements)
+    DoBlockJS(statements)
   }
 
-  def expressionToIR(expression: Expression): ExpressionIR = expression match {
-    case arrayValue: ArrayValue => ArrayValueIR(arrayValue.expressions.map(a => expressionToIR(a)))
-    case intConst: IntConst => IntConstIR(intConst.value)
-    case stringLiteral: StringLiteral => StringLiteralIR(stringLiteral.value)
+  def expressionToIR(expression: Expression): ExpressionJS = expression match {
+    case arrayValue: ArrayValue => ArrayValueJS(arrayValue.expressions.map(a => expressionToIR(a)))
+    case intConst: IntConst => IntConstJS(intConst.value)
+    case stringLiteral: StringLiteral => StringLiteralJS(stringLiteral.value)
     case identifier: Identifier => identifierToIR(identifier)
     case methodCall: MethodCall => methodCallToIR(methodCall)
-    case rBinary: RBinary => RBinaryIR(relationalOpToIR(rBinary.op), expressionToIR(rBinary.expression1), expressionToIR(rBinary.expression2))
+    case rBinary: RBinary => RBinaryJS(relationalOpToIR(rBinary.op), expressionToIR(rBinary.expression1), expressionToIR(rBinary.expression2))
   }
 
-  def relationalOpToIR(op: RBinOp): RelationalOperatorIR = op match {
-    case GreaterEqual => GreaterEqualIR
-    case Greater => GreaterIR
-    case LessEqual => LessEqualIR
-    case Less => LessIR
-    case Equal => EqualIR
+  def relationalOpToIR(op: RBinOp): RelationalOperatorJS = op match {
+    case GreaterEqual => GreaterEqualJS$
+    case Greater => GreaterJS$
+    case LessEqual => LessEqualJS$
+    case Less => LessJS$
+    case Equal => EqualJS$
   }
 
-  def methodCallToIR(methodCall: MethodCall): ExpressionIR = {
+  def methodCallToIR(methodCall: MethodCall): ExpressionJS = {
 
     if (methodCall.name.value == "println") {
-      PrintlnIR(methodCall.name.value, methodCall.expression.map(expression => expressionToIR(expression)))
+      PrintLnJS(methodCall.name.value, methodCall.expression.map(expression => expressionToIR(expression)))
     } else {
-      MethodCallIR(methodCall.name.value, methodCall.expression.map(expression => expressionToIR(expression)))
+      MethodCallJS(methodCall.name.value, methodCall.expression.map(expression => expressionToIR(expression)))
     }
   }
 
-  def identifierToIR(identifier: Identifier): IdentifierIR = {
-    IdentifierIR(identifier.name.value)
+  def identifierToIR(identifier: Identifier): IdentifierJS = {
+    IdentifierJS(identifier.name.value)
   }
 
 
-  def ifToIR(ifStatement: If): IfStatementIR = {
+  def ifToIR(ifStatement: If): IfStatementJS = {
     //  condition: ExpressionIR, isStmt: StatementIR, elseStmt: StatementIR
     val elseBlock = if (ifStatement.elseBlock.isDefined) statementToIR(ifStatement.elseBlock.get) else null
 
-    IfStatementIR(expressionToIR(ifStatement.condition), statementToIR(ifStatement.ifBlock), Option(elseBlock))
+    IfStatementJS(expressionToIR(ifStatement.condition), statementToIR(ifStatement.ifBlock), Option(elseBlock))
     // IdentifierIR(identifier.name.value, null)
   }
 
-  def statementToIR(statement: Statement): StatementIR = {
+  def statementToIR(statement: Statement): StatementJS = {
     statement match {
-      case Assign(name, _, immutable, block) => AssignIR(name.value, immutable, blockToIR(block))
-      case For(identifier, expression, block) => ForIR(identifierToIR(identifier), expressionToIR(expression), blockToIR(block))
+      case Assign(name, _, immutable, block) => AssignJS(name.value, immutable, blockToIR(block))
+      case For(identifier, expression, block) => ForJS(identifierToIR(identifier), expressionToIR(expression), blockToIR(block))
       case ifStatement: If => ifToIR(ifStatement)
       case doBlock: CurlyBracketsBlock => doBlockToIR(doBlock)
-      case exprAsStmt: ExprAsStmt => ExprAsStmtIR(expressionToIR(exprAsStmt.expression))
+      case exprAsStmt: ExprAsStmt => ExprAsStmtJS(expressionToIR(exprAsStmt.expression))
     }
   }
 }
