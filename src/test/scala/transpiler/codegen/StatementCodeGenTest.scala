@@ -27,6 +27,10 @@ class StatementCodeGenTest extends AnyFunSpec with Matchers {
           |    for i in array {
           |      if y < 5 {
           |        println("Something")
+          |      } elif false {
+          |        println("Else")
+          |      } else {
+          |        println(false)
           |      }
           |    }
           |  }

@@ -4,6 +4,8 @@ trait ExpressionJS
 
 case class ArrayValueJS(expressionIRs: Seq[ExpressionJS]) extends ExpressionJS
 
+case class BoolConstJS(value: Boolean) extends ExpressionJS
+
 case class PrintLnJS(name: String, expressions: Seq[ExpressionJS]) extends ExpressionJS
 
 case class MethodCallJS(name: String, expressions: Seq[ExpressionJS]) extends ExpressionJS

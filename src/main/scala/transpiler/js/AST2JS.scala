@@ -1,6 +1,6 @@
 package transpiler.js
 
-import transpiler.parser.ast.{Abstract, ArrayValue, Assign, Block, CurlyBracketsBlock, Equal, ExprAsStmt, Expression, Field, Final, For, Greater, GreaterEqual, Identifier, If, Inline, IntConst, Less, LessEqual, Method, MethodCall, Model, Module, PackageLocal, Private, Protected, Pure, RBinOp, RBinary, RefLocal, RefQual, Statement, StringLiteral}
+import transpiler.parser.ast.{Abstract, ArrayValue, Assign, Block, BoolConst, CurlyBracketsBlock, Equal, ExprAsStmt, Expression, Field, Final, For, Greater, GreaterEqual, Identifier, If, Inline, IntConst, Less, LessEqual, Method, MethodCall, Model, Module, PackageLocal, Private, Protected, Pure, RBinOp, RBinary, RefLocal, RefQual, Statement, StringLiteral}
 
 import scala.collection.mutable.ListBuffer
 
@@ -68,7 +68,10 @@ object AST2JS {
       case inline: Inline => inlineToIR(inline)
       case doBlock: CurlyBracketsBlock => doBlockToIR(doBlock)
     }
+  }
 
+  def boolConstToJS(boolConst: BoolConst): BoolConstJS ={
+    BoolConstJS(boolConst.value)
   }
 
   def inlineToIR(inline: Inline): InlineJS = {
@@ -84,21 +87,27 @@ object AST2JS {
   }
 
   def expressionToIR(expression: Expression): ExpressionJS = expression match {
-    case arrayValue: ArrayValue => ArrayValueJS(arrayValue.expressions.map(a => expressionToIR(a)))
-    case intConst: IntConst => IntConstJS(intConst.value)
-    case stringLiteral: StringLiteral => StringLiteralJS(stringLiteral.value)
+    case arrayValue: ArrayValue => ArrayValueJS(arrayValue.expressions.map(expressionToIR))
+    case boolConst: BoolConst => boolConstToJS(boolConst)
     case identifier: Identifier => identifierToIR(identifier)
+    case intConst: IntConst => IntConstJS(intConst.value)
     case methodCall: MethodCall => methodCallToIR(methodCall)
     case rBinary: RBinary => RBinaryJS(relationalOpToIR(rBinary.op), expressionToIR(rBinary.expression1), expressionToIR(rBinary.expression2))
+    case stringLiteral: StringLiteral => StringLiteralJS(stringLiteral.value)
   }
 
-  def relationalOpToIR(op: RBinOp): RelationalOperatorJS = op match {
-    case GreaterEqual => GreaterEqualJS$
-    case Greater => GreaterJS$
-    case LessEqual => LessEqualJS$
-    case Less => LessJS$
-    case Equal => EqualJS$
+
+  def identifierToIR(identifier: Identifier): IdentifierJS = {
+    IdentifierJS(identifier.name.value)
   }
+
+
+  def ifToIR(ifStatement: If): IfStatementJS = {
+    val elseBlock = if (ifStatement.elseBlock.isDefined) Option(statementToIR(ifStatement.elseBlock.get)) else None
+
+    IfStatementJS(expressionToIR(ifStatement.condition), statementToIR(ifStatement.ifBlock), elseBlock)
+  }
+
 
   def methodCallToIR(methodCall: MethodCall): ExpressionJS = {
 
@@ -109,17 +118,12 @@ object AST2JS {
     }
   }
 
-  def identifierToIR(identifier: Identifier): IdentifierJS = {
-    IdentifierJS(identifier.name.value)
-  }
-
-
-  def ifToIR(ifStatement: If): IfStatementJS = {
-    //  condition: ExpressionIR, isStmt: StatementIR, elseStmt: StatementIR
-    val elseBlock = if (ifStatement.elseBlock.isDefined) statementToIR(ifStatement.elseBlock.get) else null
-
-    IfStatementJS(expressionToIR(ifStatement.condition), statementToIR(ifStatement.ifBlock), Option(elseBlock))
-    // IdentifierIR(identifier.name.value, null)
+  def relationalOpToIR(op: RBinOp): RelationalOperatorJS = op match {
+    case GreaterEqual => GreaterEqualJS$
+    case Greater => GreaterJS$
+    case LessEqual => LessEqualJS$
+    case Less => LessJS$
+    case Equal => EqualJS$
   }
 
   def statementToIR(statement: Statement): StatementJS = {

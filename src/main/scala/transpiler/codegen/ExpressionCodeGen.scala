@@ -1,12 +1,13 @@
 package transpiler.codegen
 
 import transpiler.codegen.StatementCodeGen.{identifierGenCode, statementGenCode}
-import transpiler.js.{ArrayValueJS, DoubleConstJS, ExpressionJS, FloatConstJS, IdentifierJS, IntConstJS, LongConstJS, MethodCallJS, PrintLnJS, RBinaryJS, StringLiteralJS}
+import transpiler.js.{ArrayValueJS, BoolConstJS, DoubleConstJS, ExpressionJS, FloatConstJS, IdentifierJS, IntConstJS, LongConstJS, MethodCallJS, PrintLnJS, RBinaryJS, StringLiteralJS}
 
 class ExpressionCodeGen {
 
   def expressionGenCode(expression: ExpressionJS): String = expression match {
     case ArrayValueJS(expressionIRs) => "[" + expressionIRs.map(expression => expressionGenCode(expression)).mkString(",") + "]"
+    case BoolConstJS(value) => value.toString
     case identifier: IdentifierJS => identifierGenCode(identifier)
     case doubleConst: DoubleConstJS => doubleConst.value.toString
     case floatConst: FloatConstJS => floatConst.value.toString
