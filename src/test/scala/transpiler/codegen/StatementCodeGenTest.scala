@@ -10,6 +10,7 @@ import jdk.nashorn.internal.runtime.ErrorManager
 import jdk.nashorn.internal.runtime.options.Options
 import jdk.nashorn.internal.runtime.Source
 import transpiler.js.{AST2JS, ModelJS}
+import transpiler.utils.JavascriptBeautifier
 
 
 class StatementCodeGenTest extends AnyFunSpec with Matchers {
@@ -62,9 +63,7 @@ class StatementCodeGenTest extends AnyFunSpec with Matchers {
       val block = functionNode.getBody();
       val statements = block.getStatements();
 
-      println(functionNode)
-      println(block)
-      println(statements)
+      println(JavascriptBeautifier.beautify(compiledCode.head))
     }
 
   }
