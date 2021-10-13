@@ -6,8 +6,10 @@ import scala.collection.mutable.ListBuffer
 
 object AST2JS {
 
-  def moduleToIR(module: Module): Seq[ModelJS] = {
-    module.models.map(model => modelToIR(model, module))
+  def moduleToIR(module: Module):ModuleJS = {
+    val models = module.models.map(model => modelToIR(model, module))
+
+    ModuleJS(ModuleHeaderJS(PackageJS(Seq()), Seq()),models)
   }
 
   def modelToIR(model: Model, module: Module): ModelJS = {

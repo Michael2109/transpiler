@@ -1,40 +1,22 @@
 package transpiler.codegen
 
 import fastparse.{Parsed, parse}
+import jdk.nashorn.internal.parser.Parser
+import jdk.nashorn.internal.runtime.{Context, ErrorManager, Source}
+import jdk.nashorn.internal.runtime.options.Options
 import org.scalatest.funspec.AnyFunSpec
 import org.scalatest.matchers.must.Matchers
+import transpiler.js.{AST2JS, ModelJS, ModuleJS}
 import transpiler.parser.StatementParser
-import jdk.nashorn.internal.parser.Parser
-import jdk.nashorn.internal.runtime.Context
-import jdk.nashorn.internal.runtime.ErrorManager
-import jdk.nashorn.internal.runtime.options.Options
-import jdk.nashorn.internal.runtime.Source
-import transpiler.js.{AST2JS, ModelJS}
 import transpiler.utils.JavascriptBeautifier
 
 
-class StatementCodeGenTest extends AnyFunSpec with Matchers {
+class ClassCodeGenTest extends AnyFunSpec with Matchers {
   describe("Model parser") {
     it("Should parse a model with no fields") {
       val code =
-        """package x.y.zS
+        """package a.b.c
           |class ClassName {
-          |
-          |  let variable: Int = 1000
-          |
-          |  let x() Int ={
-          |    let y = 10
-          |    let array = []
-          |    for i in array {
-          |      if y < 5 {
-          |        println("Something")
-          |      } elif false {
-          |        println("Else")
-          |      } else {
-          |        println(false)
-          |      }
-          |    }
-          |  }
           |}
         """.stripMargin.replace("\r", "")
 
@@ -42,11 +24,11 @@ class StatementCodeGenTest extends AnyFunSpec with Matchers {
 
       println(ast)
       // Process AST
-      val modelIRs: Seq[ModelJS] = AST2JS.moduleToIR(ast).models
+      val moduleJS: ModuleJS = AST2JS.moduleToIR(ast)
 
-      println(modelIRs)
+      println(moduleJS)
 
-      val compiledCode: List[String] = modelIRs.map(StatementCodeGen.modelGenCode).toList
+      val compiledCode: String = StatementCodeGen.moduleGenCode(moduleJS)
       println(compiledCode.head)
 
       val options = new Options("nashorn");
@@ -57,13 +39,21 @@ class StatementCodeGenTest extends AnyFunSpec with Matchers {
 
       val errors = new ErrorManager();
       val context = new Context(options, errors, Thread.currentThread().getContextClassLoader());
-      val source   =  Source.sourceFor("test", compiledCode.head);
+      val source   =  Source.sourceFor("test", compiledCode);
       val parser = new Parser(context.getEnv(), source, errors);
       val functionNode = parser.parse();
       val block = functionNode.getBody();
       val statements = block.getStatements();
 
-      println(JavascriptBeautifier.beautify(compiledCode.head))
+      println(JavascriptBeautifier.beautify(compiledCode))
+
+      val expectedResult: String =
+      """package a.b.c;
+        |class ClassName {
+        |}
+        """.stripMargin.replace("\r", "")
+
+      assertResult(JavascriptBeautifier.beautify(expectedResult))(JavascriptBeautifier.beautify(compiledCode))
     }
 
   }

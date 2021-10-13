@@ -17,7 +17,7 @@ class ModuleParserTest extends AnyFunSpec with Matchers {
       val code =
         """package a.b.c
         """.stripMargin.replace("\r", "")
-      val Parsed.Success(value, _) = parse(code, StatementParser.fileParser(_))
+      val Parsed.Success(value, _) = parse(code, StatementParser.moduleParser(_))
       value shouldBe Module(ModuleHeader(Package(ArrayBuffer(Name("a"), Name("b"), Name("c"))),ArrayBuffer()),ArrayBuffer())
     }
 
@@ -27,7 +27,7 @@ class ModuleParserTest extends AnyFunSpec with Matchers {
           |
           |import x.y.z
         """.stripMargin.replace("\r", "")
-      val Parsed.Success(value, _) = parse(code, StatementParser.fileParser(_))
+      val Parsed.Success(value, _) = parse(code, StatementParser.moduleParser(_))
       value shouldBe Module(ModuleHeader(Package(ArrayBuffer(Name("a"), Name("b"), Name("c"))),ArrayBuffer(Import(ArrayBuffer(Name("x"), Name("y"), Name("z"))))),ArrayBuffer())
     }
 
@@ -41,7 +41,7 @@ class ModuleParserTest extends AnyFunSpec with Matchers {
           |
           |}
         """.stripMargin.replace("\r", "")
-      val Parsed.Success(value, _) = parse(code, StatementParser.fileParser(_))
+      val Parsed.Success(value, _) = parse(code, StatementParser.moduleParser(_))
       value shouldBe Module(ModuleHeader(Package(ArrayBuffer(Name("a"), Name("b"), Name("c"))),ArrayBuffer(Import(ArrayBuffer(Name("x"), Name("y"), Name("z"))))),ArrayBuffer(Model(ClassModelType,Name("A"),List(),None,List(),ArrayBuffer(),ArrayBuffer())))
     }
 
@@ -55,7 +55,7 @@ class ModuleParserTest extends AnyFunSpec with Matchers {
           |class B {}
           |class C {}
         """.stripMargin.replace("\r", "")
-      val Parsed.Success(value, _) = parse(code, StatementParser.fileParser(_))
+      val Parsed.Success(value, _) = parse(code, StatementParser.moduleParser(_))
       value shouldBe Module(ModuleHeader(Package(ArrayBuffer(Name("a"), Name("b"), Name("c"))),ArrayBuffer(Import(ArrayBuffer(Name("x"), Name("y"), Name("z"))))),ArrayBuffer(Model(ClassModelType,Name("A"),List(),None,List(),ArrayBuffer(),ArrayBuffer()),Model(ClassModelType,Name("B"),List(),None,List(),ArrayBuffer(),ArrayBuffer()),Model(ClassModelType,Name("C"),List(),None,List(),ArrayBuffer(),ArrayBuffer())))
     }
 
@@ -72,7 +72,7 @@ class ModuleParserTest extends AnyFunSpec with Matchers {
           |  }
           |}
         """.stripMargin.replace("\r", "")
-      val Parsed.Success(value, _) = parse(code, StatementParser.fileParser(_))
+      val Parsed.Success(value, _) = parse(code, StatementParser.moduleParser(_))
       value shouldBe Module(ModuleHeader(Package(ArrayBuffer(Name("a"), Name("b"), Name("c"))),ArrayBuffer(Import(ArrayBuffer(Name("x"), Name("y"), Name("z"))))),ArrayBuffer(Model(ClassModelType,Name("Test"),List(),None,List(),ArrayBuffer(),ArrayBuffer(Field(Name("x"),Type(RefLocal(Name("Int"))),Some(ExprAsStmt(IntConst(10)))), Method(Name("exampleMethod"),List(),ArrayBuffer(),ArrayBuffer(),Some(Type(RefLocal(Name("Int")))),CurlyBracketsBlock(ArrayBuffer(ExprAsStmt(IntConst(1)))))))))
     }
   }

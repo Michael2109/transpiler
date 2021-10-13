@@ -1,6 +1,17 @@
 package transpiler.js
 
+import transpiler.parser.ast.{Model, ModuleHeader, Name, Ref}
+
 import scala.collection.mutable.ListBuffer
+
+
+case class ModuleHeaderJS(nameSpace: PackageJS, imports: Seq[ImportJS])
+
+case class ImportJS(loc: Seq[String])
+
+case class PackageJS(nameSpace: Seq[String])
+
+case class ModuleJS(header: ModuleHeaderJS, models: Seq[ModelJS])
 
 trait StatementJS
 

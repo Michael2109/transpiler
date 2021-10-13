@@ -51,7 +51,7 @@ object StatementParser extends ExpressionParser {
 
   def modelParser[_: P]: P[Model] = P(modelTypeParser ~/ nameParser ~ ("extends" ~ typeRefParser).? ~ ("with" ~ typeRefParser).rep() ~ modelContentBlock).map(x => Model(x._1, x._2, Seq(), x._3, Seq(), x._4, x._5))
 
-  def fileParser[_: P]: P[Module] = P(packageParser ~ importParser.rep ~ modelParser.rep).map(x => Module(ModuleHeader(x._1, x._2), x._3))
+  def moduleParser[_: P]: P[Module] = P(packageParser ~ importParser.rep ~ modelParser.rep).map(x => Module(ModuleHeader(x._1, x._2), x._3))
 
   def packageParser[_: P]: P[Package] = P("package" ~/ nameParser.rep(sep = ".")).map(Package)
 

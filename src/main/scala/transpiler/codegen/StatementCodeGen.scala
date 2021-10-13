@@ -78,7 +78,7 @@ object StatementCodeGen extends ExpressionCodeGen {
     sb.append(method.fields.map(_._1).mkString(","))
     sb.append("){")
     sb.append(blockGenCode(method.body))
-    sb.append("};")
+    sb.append("}")
 
     sb.toString()
   }
@@ -87,7 +87,17 @@ object StatementCodeGen extends ExpressionCodeGen {
     val fields = model.fields.map(field => fieldGenCode(field)).mkString
     val methods = model.methods.map(m => methodGenCode(m)).mkString
 
-    s"class ${model.name} { ${fields} $methods};"
+    s"class ${model.name} { ${fields} $methods}"
   }
 
+  def moduleGenCode(module: ModuleJS): String = {
+    val packageCode = packageGenCode(module.header.nameSpace)
+    val modelsCode = module.models.map(modelGenCode).mkString
+    s"$packageCode $modelsCode"
+  }
+
+  def packageGenCode(p: PackageJS): String = {
+    val packageName = p.nameSpace.mkString(".")
+    s"package $packageName;"
+  }
 }
