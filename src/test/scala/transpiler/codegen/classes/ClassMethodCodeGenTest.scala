@@ -13,6 +13,7 @@ class ClassMethodCodeGenTest extends AnyFunSpec with Matchers {
           |class ClassName {
           |
           |  let method1() Unit= {
+          |
           |  }
           |}
         """.stripMargin.replace("\r", "")
@@ -29,6 +30,41 @@ class ClassMethodCodeGenTest extends AnyFunSpec with Matchers {
 
       JavaScriptCompare.checkMatch(expectedResult, compiledCode)
     }
+
+    it("Should compile a class with multiple methods") {
+      val code =
+        """package a.b.c
+          |class ClassName {
+          |
+          |  let method1() Unit= {
+          |
+          |  }
+          |  let method2() Unit= {
+          |
+          |  }
+          |  let method3() Unit= {
+          |
+          |  }
+          |}
+        """.stripMargin.replace("\r", "")
+
+      val compiledCode: String = CompileUtils.compileCode(code)
+
+      val expectedResult: String =
+        """package a.b.c;
+          |class ClassName {
+          |  method1(){
+          |  }
+          |  method2(){
+          |  }
+          |  method3(){
+          |  }
+          |}
+        """.stripMargin.replace("\r", "")
+
+      JavaScriptCompare.checkMatch(expectedResult, compiledCode)
+    }
+
 
   }
 }
