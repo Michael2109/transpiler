@@ -1,25 +1,37 @@
 package transpiler.js
 
-import transpiler.parser.ast.{Abstract, ArrayValue, Assign, Block, BoolConst, CurlyBracketsBlock, Equal, ExprAsStmt, Expression, Field, Final, For, Greater, GreaterEqual, Identifier, If, Inline, IntConst, Less, LessEqual, Method, MethodCall, Model, Module, PackageLocal, Private, Protected, Pure, RBinOp, RBinary, RefLocal, RefQual, Statement, StringLiteral}
+import transpiler.parser.ast.{Abstract, ArrayValue, Assign, Block, BoolConst, CurlyBracketsBlock, Equal, ExprAsStmt, Expression, Field, Final, For, Greater, GreaterEqual, Identifier, If, Import, Inline, IntConst, Less, LessEqual, Method, MethodCall, Model, Module, ModuleHeader, Namespace, PackageLocal, Private, Protected, Pure, RBinOp, RBinary, RefLocal, RefQual, Statement, StringLiteral}
 
 import scala.collection.mutable.ListBuffer
 
 object AST2JS {
 
   def moduleToIR(module: Module):ModuleJS = {
-    val models = module.models.map(model => modelToIR(model, module))
+    val models = module.models.map(modelToIR)
 
-    ModuleJS(ModuleHeaderJS(PackageJS(Seq()), Seq()),models)
+    ModuleJS(
+      moduleHeaderToJS(module.header),models)
   }
 
-  def modelToIR(model: Model, module: Module): ModelJS = {
+  def moduleHeaderToJS(header: ModuleHeader): ModuleHeaderJS ={
+    val namespace = namespaceToJS(header.nameSpace)
+    val imports = header.imports.map(importToJS)
+    ModuleHeaderJS(namespace, imports)
+  }
 
-    // TODO Remove imports if not needed?
-    val imports: Map[String, String] = module.header.imports.map(i => i.loc.last.value -> i.loc.map(_.value).mkString("/")).toMap[String, String]
+  def namespaceToJS(namespace: Namespace): PackageJS = {
+    PackageJS(namespace.nameSpace.map(name => name.value))
+  }
+
+  def importToJS(i: Import): ImportJS ={
+    ImportJS(i.loc.map(location => location.value))
+  }
+
+  def modelToIR(model: Model): ModelJS = {
 
     val superClass: Option[String] = model.parent match {
       case Some(value) => value.ref match {
-        case RefLocal(name) => Option(imports.get(name.value).get)
+        case RefLocal(name) => Option(name.value)
         case RefQual(qualName) => Option(qualName.nameSpace.nameSpace.map(_.value).mkString("/") + "/" + qualName.name.value)
       }
       case None => None
@@ -27,7 +39,7 @@ object AST2JS {
 
     val traits: Seq[String] = model.interfaces.map(i => {
       i.ref match {
-        case refLocal: RefLocal => imports(refLocal.name.value)
+        case refLocal: RefLocal => refLocal.name.value
         case refQual: RefQual => refQual.qualName.nameSpace.nameSpace.map(_.value).mkString("/") + "/" + refQual.qualName.name.value
       }
     })

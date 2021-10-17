@@ -62,20 +62,20 @@ case object Pure extends Modifier
 
 case class Module(header: ModuleHeader, models: Seq[Model])
 
-case class ModuleHeader(nameSpace: Package, imports: Seq[Import])
+case class ModuleHeader(nameSpace: Namespace, imports: Seq[Import])
 
 case class Import(loc: Seq[Name])
 
 case class Type(ref: Ref)
 
-case class Package(nameSpace: Seq[Name])
+case class Namespace(nameSpace: Seq[Name])
 
 case class Annotation(name: Name)
 
 
 case class Name(value: String)
 
-case class QualName(nameSpace: Package, name: Name)
+case class QualName(nameSpace: Namespace, name: Name)
 
 
 trait Ref

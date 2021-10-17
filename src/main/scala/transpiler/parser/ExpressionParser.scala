@@ -87,7 +87,7 @@ class ExpressionParser {
 
   def typeRefParser[_: P]: P[Type] = refParser.map(Type)
 
-  def refParser[_: P]: P[Ref] = P(nameParser.rep(sep = ".", min = 2)).map(x => RefQual(QualName(Package(x.dropRight(1)), x.last))) | P(nameParser).map(RefLocal)
+  def refParser[_: P]: P[Ref] = P(nameParser.rep(sep = ".", min = 2)).map(x => RefQual(QualName(Namespace(x.dropRight(1)), x.last))) | P(nameParser).map(RefLocal)
 
 
   def op[_: P](s: P0, rhs: Operator): P[Operator] = s.!.map(_ => rhs)

@@ -53,7 +53,7 @@ object StatementParser extends ExpressionParser {
 
   def moduleParser[_: P]: P[Module] = P(packageParser ~ importParser.rep ~ modelParser.rep).map(x => Module(ModuleHeader(x._1, x._2), x._3))
 
-  def packageParser[_: P]: P[Package] = P("package" ~/ nameParser.rep(sep = ".")).map(Package)
+  def packageParser[_: P]: P[Namespace] = P("package" ~/ nameParser.rep(sep = ".")).map(Namespace)
 
   def reassignParser[_: P]: P[Reassign] = P(nameParser ~ "=" ~/ exprAsStmt).map(x => Reassign(x._1, x._2))
 
